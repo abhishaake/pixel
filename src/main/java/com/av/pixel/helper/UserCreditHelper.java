@@ -8,10 +8,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserCreditHelper {
 
-    public UserCredit getDefaultUserCredit() {
-        UserCredit userCredit = new UserCredit();
-        userCredit.setAvailable(0L);
-        userCredit.setUtilised(0L);
-        return userCredit;
+    public Long getDefaultUserCredit() {
+        return 0L;
     }
 }

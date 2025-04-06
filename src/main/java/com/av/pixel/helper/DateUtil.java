@@ -1,6 +1,8 @@
 package com.av.pixel.helper;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 public class DateUtil {
@@ -11,8 +13,7 @@ public class DateUtil {
 
     public static Long getXYearAheadEpoch(int years) {
         Instant now = Instant.now();
-        Instant xYearLater = now.plus(years, ChronoUnit.YEARS);
-
-        return xYearLater.toEpochMilli();
+        ZonedDateTime oneYearLater = now.atZone(ZoneId.systemDefault()).plusYears(1);
+        return oneYearLater.toInstant().toEpochMilli();
     }
 }

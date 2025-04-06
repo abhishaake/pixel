@@ -7,4 +7,6 @@ import com.av.pixel.dto.UserCreditDTO;
 public interface UserCreditService {
 
     UserCredit createNewUserCredit(User user);
+
+    UserCreditDTO getUserCredit(User user);
 }

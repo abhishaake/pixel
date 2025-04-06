@@ -4,13 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Data
+@MappedSuperclass
 public class BaseEntity {
 
     @Id
@@ -30,11 +33,14 @@ public class BaseEntity {
     @PrePersist
     protected void onCreate() {
         Date currentDate = new Date();
-        if (null == this.created) {
+        if (Objects.isNull(this.created)) {
             this.created = currentDate;
         }
-        if (null == this.updated) {
+        if (Objects.isNull(this.updated)) {
             this.updated = currentDate;
+        }
+        if (Objects.isNull(this.deleted)) {
+            this.deleted = false;
         }
     }
 

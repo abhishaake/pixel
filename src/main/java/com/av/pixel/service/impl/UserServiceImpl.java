@@ -2,10 +2,12 @@ package com.av.pixel.service.impl;
 
 import com.av.pixel.dao.User;
 import com.av.pixel.dao.UserCredit;
+import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
 import com.av.pixel.helper.UserHelper;
-import com.av.pixel.mapper.UserMapper;
+import com.av.pixel.mapper.UserCreditMap;
+import com.av.pixel.mapper.UserMap;
 import com.av.pixel.repository.UserRepository;
 import com.av.pixel.request.SignInRequest;
 import com.av.pixel.request.SignUpRequest;
@@ -18,6 +20,7 @@ import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
     UserTokenService userTokenService;
 
     @Override
+    @Transactional
     public User createUser (UserDTO userDTO) {
         userHelper.validateNewUserRequest(userDTO);
 
@@ -42,33 +46,59 @@ public class UserServiceImpl implements UserService {
             userDTO.setPassword(userHelper.encodePassword(userDTO.getPassword()));
         }
 
-        User user = UserMapper.INSTANCE.toEntity(userDTO);
-        user = userRepository.save(user);
+        User user = UserMap.toUserEntity(userDTO);
 
-        return user;
+        assert Objects.nonNull(user);
+
+        return userRepository.save(user);
     }
 
     @Override
+    @Transactional
     public SignUpResponse signUp (SignUpRequest signUpRequest) {
-        UserDTO userDTO = UserMapper.INSTANCE.toDTO(signUpRequest);
+        UserDTO userDTO = UserMap.toUserDTO(signUpRequest);
         User user = createUser(userDTO);
+        userDTO = UserMap.toUserDTO(user);
+
         UserCredit userCredit = userCreditService.createNewUserCredit(user);
-        UserTokenDTO userTokenDTO = userTokenService.registerToken(user.getCode());
-        return UserMapper.INSTANCE.toResponse(userDTO);
+        UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCredit);
+
+        UserTokenDTO userTokenDTO = null;
+        if (StringUtils.isNotEmpty(signUpRequest.getAuthToken())) {
+            userTokenDTO = userTokenService.registerToken(user.getCode(), signUpRequest.getAuthToken());
+        } else {
+            userTokenDTO = userTokenService.registerToken(user.getCode());
+        }
+        // TODO : cache
+        return UserMap.toSignUpResponse(userDTO, userCreditDTO, userTokenDTO);
     }
 
     @Override
+    @Transactional
     public SignInResponse signIn (SignInRequest signInRequest) {
-        UserDTO userDTO = UserMapper.INSTANCE.toDTO(signInRequest);
+        UserDTO userDTO = UserMap.toUserDTO(signInRequest);
+
+        assert Objects.nonNull(userDTO);
         User user = userRepository.findByEmail(userDTO.getEmail());
 
         if (Objects.isNull(user)) {
-            SignUpResponse signUpResponse = signUp(UserMapper.INSTANCE.toSignUpRequest(signInRequest));
-            return UserMapper.INSTANCE.toSignInResponse(signUpResponse);
+            SignUpResponse signUpResponse = signUp(UserMap.toSignUpRequest(signInRequest));
+            return UserMap.toSignInResponse(signUpResponse);
         }
+        userDTO = UserMap.toUserDTO(user);
+
+        UserCreditDTO userCreditDTO = userCreditService.getUserCredit(user);
 
         UserTokenDTO userTokenDTO = userTokenService.registerToken(user.getCode(), signInRequest.getAuthToken());
+        // TODO : cache
 
-        return UserMapper.INSTANCE.toSignInResponse(UserMapper.INSTANCE.toDTO(user));
+        return UserMap.toResponse(userDTO, userCreditDTO, userTokenDTO);
+    }
+
+    @Override
+    public String logout (String accessToken) {
+        userTokenService.expireToken(accessToken);
+        // TODO: clear cache
+        return "SUCCESS";
     }
 }

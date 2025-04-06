@@ -12,8 +12,6 @@ public interface BaseRepository<T, ID> extends JpaRepository<T, ID> {
 
     List<T> findByDeletedFalse();
 
-    Page<T> findByDeletedFalse(Pageable page);
-
     T findByIdAndDeletedFalse(ID id);
 
     List<T> findByIdInAndDeletedFalse(List<ID> id);

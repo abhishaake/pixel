@@ -1,8 +1,10 @@
 package com.av.pixel.dto;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class UserDTO {
 
     String firstName;
@@ -11,6 +13,7 @@ public class UserDTO {
     String phone;
     String code;
     String password;
+    String accessToken;
 
     public String getFullName() {
         return this.firstName + " " + this.lastName;

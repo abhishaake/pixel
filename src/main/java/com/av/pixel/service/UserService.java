@@ -14,4 +14,6 @@ public interface UserService {
     SignUpResponse signUp(SignUpRequest signUpRequest);
 
     SignInResponse signIn(SignInRequest signInRequest);
+
+    String logout(String accessToken);
 }

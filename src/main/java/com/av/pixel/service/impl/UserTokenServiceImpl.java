@@ -1,14 +1,21 @@
 package com.av.pixel.service.impl;
 
 import com.av.pixel.dao.UserToken;
+import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
+import com.av.pixel.exception.Error;
 import com.av.pixel.helper.UserTokenHelper;
-import com.av.pixel.mapper.UserMapper;
+import com.av.pixel.mapper.UserMap;
+import com.av.pixel.mapper.UserTokenMap;
 import com.av.pixel.repository.UserTokenRepository;
 import com.av.pixel.service.UserTokenService;
+import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -26,7 +33,7 @@ public class UserTokenServiceImpl implements UserTokenService {
         userToken.setValidity(UserTokenHelper.getDefaultValidity());
         userToken.setExpired(false);
         userToken = userTokenRepository.save(userToken);
-        return UserMapper.INSTANCE.toTokenDTO(userToken);
+        return UserTokenMap.toTokenDTO(userToken);
     }
 
     @Override
@@ -37,6 +44,26 @@ public class UserTokenServiceImpl implements UserTokenService {
         userToken.setValidity(UserTokenHelper.getDefaultValidity());
         userToken.setExpired(false);
         userToken = userTokenRepository.save(userToken);
-        return UserMapper.INSTANCE.toTokenDTO(userToken);
+        return UserTokenMap.toTokenDTO(userToken);
+    }
+
+    @Override
+    public void expireToken (String accessToken) {
+        UserToken userToken = userTokenRepository.findByAccessTokenAndExpiredFalseAndDeletedFalse(accessToken);
+
+        if (Objects.isNull(userToken)) {
+            throw new Error(HttpStatus.UNAUTHORIZED, "");
+        }
+
+        userToken.setExpired(true);
+        userTokenRepository.save(userToken);
+    }
+
+    @Override
+    public UserDTO getUserFromToken (String accessToken) {
+        if (StringUtils.isEmpty(accessToken)) {
+            return null;
+        }
+        return UserMap.toUserDTO(userTokenRepository.getUserFromToken(accessToken));
     }
 }

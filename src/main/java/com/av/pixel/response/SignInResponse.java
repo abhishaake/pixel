@@ -1,16 +1,15 @@
 package com.av.pixel.response;
 
+import com.av.pixel.dto.UserCreditDTO;
+import com.av.pixel.dto.UserDTO;
+import com.av.pixel.dto.UserTokenDTO;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class SignInResponse {
-    String firstName;
-    String lastName;
-    String fullName;
-    String email;
-    String phone;
-    String code;
-    String token;
-    Long availableCredits;
-    Long utilisedCredits;
+    UserDTO user;
+    UserCreditDTO userCredit;
+    UserTokenDTO userToken;
 }
