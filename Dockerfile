@@ -3,7 +3,7 @@ FROM amazoncorretto:21 AS build
 WORKDIR /build
 
 # Install Maven
-RUN apk add --no-cache maven
+RUN yum update -y && yum install -y maven
 
 # Copy pom.xml first for better layer caching
 COPY pom.xml .
