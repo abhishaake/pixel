@@ -1,1 +1,16 @@
-
+services:
+  - type: web
+    name: spring-boot-app
+    runtime: java
+    repo: https://github.com/abhishaake/pixel
+    region: oregon 
+    plan: free
+    branch: master
+    healthCheckPath: /api/v1/utility/health
+    numInstances: 1
+    buildCommand: mvn package -DskipTests
+    startCommand: java -jar target/*.jar
+    autoDeploy: false
+    envVars:
+      - key: JAVA_VERSION
+        value: "21"
