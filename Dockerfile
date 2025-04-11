@@ -3,7 +3,13 @@ FROM amazoncorretto:21 AS build
 WORKDIR /build
 
 # Install Maven
-RUN yum update -y && yum install -y maven
+RUN yum update -y && yum install -y wget tar gzip
+RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz -P /tmp
+RUN tar xf /tmp/apache-maven-3.9.6-bin.tar.gz -C /opt
+RUN ln -s /opt/apache-maven-3.9.6/bin/mvn /usr/bin/mvn
+
+# Verify Maven version
+RUN mvn --version
 
 # Copy pom.xml first for better layer caching
 COPY pom.xml .
