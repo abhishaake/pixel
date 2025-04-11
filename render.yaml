@@ -1,7 +1,7 @@
 services:
   - type: web
     name: spring-boot-app
-    runtime: java
+    runtime: docker
     repo: https://github.com/abhishaake/pixel
     region: oregon 
     plan: free
