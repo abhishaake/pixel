@@ -19,9 +19,9 @@ public class UserHelper {
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public void validateNewUserRequest(UserDTO userDTO) {
-        Validator.validateNonNull(userDTO, "");
-        Validator.validateNonEmpty(userDTO.getFirstName(), "");
-        Validator.validateNonEmpty(userDTO.getEmail(), "");
+        Validator.validateNonNull(userDTO, "Request cannot be empty");
+        Validator.validateNonEmpty(userDTO.getFirstName(), "Please provide valid first name");
+        Validator.validateNonEmpty(userDTO.getEmail(), "Please provide valid email");
     }
 
     public String generatePassword() {

@@ -33,23 +33,23 @@ public class ModelPricingDTO {
     }
 
     public Integer getFinalTurboRenderCost() {
-        return (int) (basePrice * basePriceMultiplier);
+        return (int) (turboRenderPrice * turboRenderPriceMultiplier);
     }
 
     public Integer getFinalQualityRenderCost() {
-        return (int) (basePrice * basePriceMultiplier);
+        return (int) (qualityRenderPrice * qualityRenderPriceMultiplier);
     }
 
     public Integer getFinalPrivacyCost() {
-        return (int) (basePrice * basePriceMultiplier);
+        return (int) (privacyCost * privacyCostMultiplier);
     }
 
     public Integer getFinalSeedCost() {
-        return (int) (basePrice * basePriceMultiplier);
+        return (int) (seedCost * seedCostMultiplier);
     }
 
     public Integer getFinalNegativePromptCost() {
-        return (int) (basePrice * basePriceMultiplier);
+        return (int) (negativePromptCost * negativePromptCostMultiplier);
     }
 
     public Integer getFinalCost (Integer noOfImages, String render, boolean isPrivate, boolean isSeed, boolean isNegativePrompt) {

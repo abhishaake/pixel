@@ -115,7 +115,7 @@ public class GenerationsServiceImpl implements GenerationsService {
         long totalCount = generationsPage.getTotalElements();
 
         return new GenerationsFilterResponse(GenerationsMap.toList(generationsPage.getContent()),
-                totalCount, generationsFilterRequest.getPage(), generationsFilterRequest.getSize());
+                totalCount, generationsFilterRequest.getPage(), generationsPage.getNumberOfElements());
     }
 
     public Page<Generations> findByFilters(List<String> userCodes,

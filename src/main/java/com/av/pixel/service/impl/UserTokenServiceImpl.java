@@ -3,6 +3,7 @@ package com.av.pixel.service.impl;
 import com.av.pixel.dao.UserToken;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
+import com.av.pixel.exception.AuthenticationException;
 import com.av.pixel.exception.Error;
 import com.av.pixel.helper.UserTokenHelper;
 import com.av.pixel.mapper.UserMap;
@@ -54,7 +55,7 @@ public class UserTokenServiceImpl implements UserTokenService {
         UserToken userToken = userTokenRepository.findByAccessTokenAndExpiredFalseAndDeletedFalse(accessToken);
 
         if (Objects.isNull(userToken)) {
-            throw new Error(HttpStatus.UNAUTHORIZED, "");
+            throw new AuthenticationException();
         }
 
         userToken.setExpired(true);

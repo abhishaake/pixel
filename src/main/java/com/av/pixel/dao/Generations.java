@@ -20,5 +20,6 @@ public class Generations extends BaseEntity {
     String tag;
     String category;
     String model;
+    String style;
     String userPrompt;
 }

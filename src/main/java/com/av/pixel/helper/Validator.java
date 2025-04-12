@@ -50,14 +50,10 @@ public class Validator {
         }
     }
 
-    public static void validatePhone(String phone, String error) {
-
-    }
-
     public static void validateGenerateRequest (GenerateRequest generateRequest) {
-        validateNonNull(generateRequest, "");
-        validateNonEmpty(generateRequest.getPrompt(), "");
-        validateNonNull(generateRequest.getNumberOfImages(), "");
+        validateNonNull(generateRequest, "Request cannot be empty");
+        validateNonEmpty(generateRequest.getPrompt(), "Please provide valid prompt");
+        validateNonNull(generateRequest.getNumberOfImages(), "Please provide number of images between range 1 and 4");
     }
 
     private static void validateNoOfImageRange (Integer noOfImages, String error) {
@@ -67,16 +63,16 @@ public class Validator {
     }
 
     private static void validateSeedRange (Long seed, String error) {
-        if (Objects.nonNull(seed) && ((seed < 1) || (seed > 1000000))){
+        if (Objects.nonNull(seed) && ((seed < 0) || (seed > 2147483647))){
             throw new Error(error);
         }
     }
 
     public static void validateModelPricingRequest (ImagePricingRequest imagePricingRequest) {
-        validateNonNull(imagePricingRequest, "");
-        validateNonEmpty(imagePricingRequest.getModel(), "");
-        validateNonNull(imagePricingRequest.getNoOfImages(), "");
-        validateNoOfImageRange(imagePricingRequest.getNoOfImages(), "");
-        validateSeedRange(imagePricingRequest.getSeed(), "");
+        validateNonNull(imagePricingRequest, "Request cannot be empty");
+        validateNonEmpty(imagePricingRequest.getModel(), "Please provide model");
+        validateNonNull(imagePricingRequest.getNoOfImages(), "Please provide number of images");
+        validateNoOfImageRange(imagePricingRequest.getNoOfImages(), "Please provide number of image in between 1 and 4");
+        validateSeedRange(imagePricingRequest.getSeed(), "Please provide seed in between range 1 and 2147483647");
     }
 }

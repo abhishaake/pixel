@@ -6,6 +6,8 @@ import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
+import java.util.Objects;
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Response<T> {
@@ -43,7 +45,9 @@ public class Response<T> {
         this.success = false;
         this.statusCode = status.value();
         this.message = errorMessage;
-        this.displayMessage = ERROR_MSG;
+        if (!status.is2xxSuccessful()) {
+            this.displayMessage = ERROR_MSG;
+        }
     }
 
     public Response(HttpStatus status, String errorMessage, String displayMessage) {
