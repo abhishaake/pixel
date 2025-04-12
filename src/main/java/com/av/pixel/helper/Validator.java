@@ -42,14 +42,10 @@ public class Validator {
         if (Objects.isNull(filterRequest)) {
             throw new Error(error);
         }
-        if (CollectionUtils.isEmpty(filterRequest.getUserCodes()) && CollectionUtils.isEmpty(filterRequest.getCategories())
-            && CollectionUtils.isEmpty(filterRequest.getStyles())) {
-            throw new Error(error);
-        }
         if (Objects.isNull(filterRequest.getPage())){
             filterRequest.setPage(0);
         }
-        if (Objects.isNull(filterRequest.getStyles())){
+        if (Objects.isNull(filterRequest.getSize())){
             filterRequest.setSize(50);
         }
     }

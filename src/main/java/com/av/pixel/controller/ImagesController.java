@@ -31,9 +31,7 @@ public class ImagesController {
     GenerationsService imagesService;
 
     @PostMapping("/filter")
-    @Authenticated
-    public ResponseEntity<Response<GenerationsFilterResponse>> filterImages(UserDTO userDTO,
-                                                                            @RequestBody GenerationsFilterRequest imageFilterRequest) {
+    public ResponseEntity<Response<GenerationsFilterResponse>> filterImages(@RequestBody GenerationsFilterRequest imageFilterRequest) {
         return response(imagesService.filterImages(imageFilterRequest), HttpStatus.OK);
     }
 
