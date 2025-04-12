@@ -14,6 +14,7 @@ public class UserDTO {
     String code;
     String password;
     String accessToken;
+    String imageUrl;
 
     public String getFullName() {
         return this.firstName + " " + this.lastName;

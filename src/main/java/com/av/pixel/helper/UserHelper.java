@@ -21,10 +21,7 @@ public class UserHelper {
     public void validateNewUserRequest(UserDTO userDTO) {
         Validator.validateNonNull(userDTO, "");
         Validator.validateNonEmpty(userDTO.getFirstName(), "");
-        Validator.validateNonEmpty(userDTO.getLastName(), "");
-        Validator.validateNonEmpty(userDTO.getPhone(), "");
         Validator.validateNonEmpty(userDTO.getEmail(), "");
-        Validator.validatePhone(userDTO.getPhone(), "");
     }
 
     public String generatePassword() {

@@ -6,12 +6,14 @@ import com.av.pixel.request.SignInRequest;
 import com.av.pixel.request.SignUpRequest;
 import com.av.pixel.response.SignInResponse;
 import com.av.pixel.response.SignUpResponse;
+import com.av.pixel.response.UserInfoResponse;
 import com.av.pixel.response.base.Response;
 import com.av.pixel.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,5 +42,11 @@ public class UserController {
     @Authenticated
     public ResponseEntity<Response<String>> logOut (UserDTO userDTO) {
         return response(userService.logout(userDTO.getAccessToken()), HttpStatus.OK);
+    }
+
+    @GetMapping("/info")
+    @Authenticated
+    public ResponseEntity<Response<UserInfoResponse>> getUserInfo (UserDTO userDTO) {
+        return response(userService.getUserInfo(userDTO.getAccessToken()), HttpStatus.OK);
     }
 }

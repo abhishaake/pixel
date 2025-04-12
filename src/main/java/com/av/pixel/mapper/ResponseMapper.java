@@ -10,4 +10,12 @@ public class ResponseMapper {
         return new ResponseEntity<>(new Response<>(status, data), status);
     }
 
+    public static <T> ResponseEntity<Response<T>> response (HttpStatus status, String errorMessage) {
+        return new ResponseEntity<>(new Response<>(status, errorMessage), status);
+    }
+
+    public static <T> ResponseEntity<Response<T>> response (HttpStatus status, String errorMessage, String displayMessage) {
+        return new ResponseEntity<>(new Response<>(status, errorMessage, displayMessage), status);
+    }
+
 }

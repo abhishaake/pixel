@@ -11,4 +11,5 @@ public class SignInRequest {
     String code;
     String password;
     String authToken;
+    String imageUrl;
 }

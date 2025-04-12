@@ -5,6 +5,7 @@ import com.av.pixel.dao.UserCredit;
 import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
+import com.av.pixel.helper.SequenceGeneratorService;
 import com.av.pixel.helper.UserHelper;
 import com.av.pixel.mapper.UserCreditMap;
 import com.av.pixel.mapper.UserMap;
@@ -13,6 +14,7 @@ import com.av.pixel.request.SignInRequest;
 import com.av.pixel.request.SignUpRequest;
 import com.av.pixel.response.SignInResponse;
 import com.av.pixel.response.SignUpResponse;
+import com.av.pixel.response.UserInfoResponse;
 import com.av.pixel.service.UserCreditService;
 import com.av.pixel.service.UserService;
 import com.av.pixel.service.UserTokenService;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
     UserHelper userHelper;
+    SequenceGeneratorService sequenceGeneratorService;
 
     UserCreditService userCreditService;
     UserTokenService userTokenService;
@@ -45,6 +48,7 @@ public class UserServiceImpl implements UserService {
         } else {
             userDTO.setPassword(userHelper.encodePassword(userDTO.getPassword()));
         }
+        userDTO.setCode(sequenceGeneratorService.getNextUserCode());
 
         User user = UserMap.toUserEntity(userDTO);
 
@@ -100,5 +104,15 @@ public class UserServiceImpl implements UserService {
         userTokenService.expireToken(accessToken);
         // TODO: clear cache
         return "SUCCESS";
+    }
+
+    @Override
+    public UserInfoResponse getUserInfo (String accessToken) {
+        UserDTO userDTO = userTokenService.getUserFromToken(accessToken);
+        UserCreditDTO userCreditDTO = userCreditService.getUserCredit(userDTO.getCode());
+
+        return new UserInfoResponse()
+                .setUser(userDTO)
+                .setUserCredit(userCreditDTO);
     }
 }

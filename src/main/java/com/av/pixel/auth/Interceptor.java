@@ -1,6 +1,7 @@
 package com.av.pixel.auth;
 
 import com.av.pixel.dto.UserDTO;
+import com.av.pixel.exception.AuthenticationException;
 import com.av.pixel.helper.TransformUtil;
 import com.av.pixel.service.UserTokenService;
 import io.micrometer.common.util.StringUtils;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.naming.AuthenticationException;
 import java.util.Objects;
 
 @Component

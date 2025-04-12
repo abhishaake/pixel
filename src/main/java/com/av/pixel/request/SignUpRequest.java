@@ -13,4 +13,5 @@ public class SignUpRequest {
     String code;
     String password;
     String authToken;
+    String imageUrl;
 }

@@ -6,6 +6,7 @@ import com.av.pixel.request.SignInRequest;
 import com.av.pixel.request.SignUpRequest;
 import com.av.pixel.response.SignInResponse;
 import com.av.pixel.response.SignUpResponse;
+import com.av.pixel.response.UserInfoResponse;
 
 public interface UserService {
 
@@ -16,4 +17,6 @@ public interface UserService {
     SignInResponse signIn(SignInRequest signInRequest);
 
     String logout(String accessToken);
+
+    UserInfoResponse getUserInfo (String accessToken);
 }

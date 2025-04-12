@@ -1,11 +1,13 @@
 package com.av.pixel.response.base;
 
 import com.av.pixel.helper.DateUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Response<T> {
 
     Long serverTime = DateUtil.currentTimeSec();
@@ -13,13 +15,14 @@ public class Response<T> {
     boolean success;
     int statusCode;
     String message;
-    String series;
+    String displayMessage;
+
+    private static final String ERROR_MSG = "Some error occurred, please try again";
 
     public Response() {
         this.success = true;
         this.statusCode = HttpStatus.OK.value();
         this.message = HttpStatus.OK.getReasonPhrase();
-        this.series = HttpStatus.OK.series().name();
     }
 
     public Response(T data) {
@@ -27,7 +30,6 @@ public class Response<T> {
         this.success = true;
         this.statusCode = HttpStatus.OK.value();
         this.message = HttpStatus.OK.getReasonPhrase();
-        this.series = HttpStatus.OK.series().name();
     }
 
     public Response(HttpStatus httpStatus, T data) {
@@ -35,6 +37,19 @@ public class Response<T> {
         this.success = true;
         this.statusCode = httpStatus.value();
         this.message = httpStatus.getReasonPhrase();
-        this.series = httpStatus.series().name();
+    }
+
+    public Response(HttpStatus status, String errorMessage) {
+        this.success = false;
+        this.statusCode = status.value();
+        this.message = errorMessage;
+        this.displayMessage = ERROR_MSG;
+    }
+
+    public Response(HttpStatus status, String errorMessage, String displayMessage) {
+        this.success = false;
+        this.statusCode = status.value();
+        this.message = errorMessage;
+        this.displayMessage = displayMessage;
     }
 }

@@ -11,6 +11,8 @@ public class Error extends RuntimeException {
     private HttpStatus httpStatus;
     private Object data;
 
+    public Error(){}
+
     public Error(final HttpStatus httpStatus, final String description) {
         super(description);
         this.httpStatus = httpStatus;
@@ -22,7 +24,10 @@ public class Error extends RuntimeException {
         this.data = data;
     }
 
-
+    public Error(final HttpStatus httpStatus) {
+        super(httpStatus.getReasonPhrase());
+        this.httpStatus = httpStatus;
+    }
 
     public Error(final String message) {
         super(message);

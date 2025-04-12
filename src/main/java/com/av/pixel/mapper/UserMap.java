@@ -24,7 +24,8 @@ public class UserMap {
                 .setLastName(user.getLastName())
                 .setPhone(user.getPhone())
                 .setEmail(user.getEmail())
-                .setCode(user.getCode());
+                .setCode(user.getCode())
+                .setImageUrl(user.getImageUrl());
     }
 
     public static User toUserEntity (UserDTO userDTO) {
@@ -38,7 +39,8 @@ public class UserMap {
                 .setPhone(userDTO.getPhone())
                 .setEmail(userDTO.getEmail())
                 .setPassword(userDTO.getPassword())
-                .setCode(userDTO.getCode());
+                .setCode(userDTO.getCode())
+                .setImageUrl(userDTO.getImageUrl());
     }
 
     public static UserDTO toUserDTO (SignInRequest signInRequest) {
@@ -51,7 +53,8 @@ public class UserMap {
                 .setPhone(signInRequest.getPhone())
                 .setEmail(signInRequest.getEmail())
                 .setPassword(signInRequest.getPassword())
-                .setCode(signInRequest.getCode());
+                .setCode(signInRequest.getCode())
+                .setImageUrl(signInRequest.getImageUrl());
     }
 
     public static UserDTO toUserDTO (SignUpRequest signUpRequest) {
@@ -64,7 +67,8 @@ public class UserMap {
                 .setPhone(signUpRequest.getPhone())
                 .setEmail(signUpRequest.getEmail())
                 .setPassword(signUpRequest.getPassword())
-                .setCode(signUpRequest.getCode());
+                .setCode(signUpRequest.getCode())
+                .setImageUrl(signUpRequest.getImageUrl());
     }
 
     public static SignInResponse toResponse (UserDTO userDTO, UserCreditDTO userCreditDTO, UserTokenDTO userTokenDTO) {
@@ -85,7 +89,8 @@ public class UserMap {
                 .setEmail(signInRequest.getEmail())
                 .setPassword(signInRequest.getPassword())
                 .setCode(signInRequest.getCode())
-                .setAuthToken(signInRequest.getAuthToken());
+                .setAuthToken(signInRequest.getAuthToken())
+                .setImageUrl(signInRequest.getImageUrl());
 
     }
 
