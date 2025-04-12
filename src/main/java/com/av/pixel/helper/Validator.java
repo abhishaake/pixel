@@ -1,9 +1,10 @@
 package com.av.pixel.helper;
 
-import com.av.pixel.dto.UserDTO;
 import com.av.pixel.exception.Error;
 import com.av.pixel.repository.UserRepository;
-import com.av.pixel.request.ImageFilterRequest;
+import com.av.pixel.request.GenerateRequest;
+import com.av.pixel.request.GenerationsFilterRequest;
+import com.av.pixel.request.ImagePricingRequest;
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,13 @@ public class Validator {
         }
     }
 
-    public static void validateFilterImageRequest(ImageFilterRequest filterRequest, String error) {
+    public static void validateNonNull(Integer obj, String error) {
+        if (Objects.isNull(obj)) {
+            throw new Error(error);
+        }
+    }
+
+    public static void validateFilterImageRequest(GenerationsFilterRequest filterRequest, String error) {
         if (Objects.isNull(filterRequest)) {
             throw new Error(error);
         }
@@ -49,5 +56,31 @@ public class Validator {
 
     public static void validatePhone(String phone, String error) {
 
+    }
+
+    public static void validateGenerateRequest (GenerateRequest generateRequest) {
+        validateNonNull(generateRequest, "");
+        validateNonEmpty(generateRequest.getPrompt(), "");
+        validateNonNull(generateRequest.getNumberOfImages(), "");
+    }
+
+    private static void validateNoOfImageRange (Integer noOfImages, String error) {
+        if ((noOfImages < 1) || (noOfImages > 5)) {
+            throw new Error(error);
+        }
+    }
+
+    private static void validateSeedRange (Long seed, String error) {
+        if (Objects.nonNull(seed) && ((seed < 1) || (seed > 1000000))){
+            throw new Error(error);
+        }
+    }
+
+    public static void validateModelPricingRequest (ImagePricingRequest imagePricingRequest) {
+        validateNonNull(imagePricingRequest, "");
+        validateNonEmpty(imagePricingRequest.getModel(), "");
+        validateNonNull(imagePricingRequest.getNoOfImages(), "");
+        validateNoOfImageRange(imagePricingRequest.getNoOfImages(), "");
+        validateSeedRange(imagePricingRequest.getSeed(), "");
     }
 }

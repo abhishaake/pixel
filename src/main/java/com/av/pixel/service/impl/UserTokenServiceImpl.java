@@ -7,6 +7,7 @@ import com.av.pixel.exception.Error;
 import com.av.pixel.helper.UserTokenHelper;
 import com.av.pixel.mapper.UserMap;
 import com.av.pixel.mapper.UserTokenMap;
+import com.av.pixel.repository.UserRepository;
 import com.av.pixel.repository.UserTokenRepository;
 import com.av.pixel.service.UserTokenService;
 import io.micrometer.common.util.StringUtils;
@@ -23,6 +24,7 @@ import java.util.Objects;
 public class UserTokenServiceImpl implements UserTokenService {
 
     UserTokenRepository userTokenRepository;
+    UserRepository userRepository;
 
     @Override
     public UserTokenDTO registerToken (String userCode, String authToken) {
@@ -64,6 +66,13 @@ public class UserTokenServiceImpl implements UserTokenService {
         if (StringUtils.isEmpty(accessToken)) {
             return null;
         }
-        return UserMap.toUserDTO(userTokenRepository.getUserFromToken(accessToken));
+
+        UserToken userToken = userTokenRepository.findByAccessTokenAndExpiredFalseAndDeletedFalse(accessToken);
+
+        if (Objects.isNull(userToken)){
+            return null;
+        }
+
+        return UserMap.toUserDTO(userRepository.findByCodeAndDeletedFalse(userToken.getUserCode()));
     }
 }

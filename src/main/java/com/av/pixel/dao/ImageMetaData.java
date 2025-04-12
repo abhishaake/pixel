@@ -6,9 +6,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class ImageMetaData {
-    String seed;
-    String model;
+    Long seed;
     String resolution;
-    String magicPrompt;
-    String userPrompt;
 }

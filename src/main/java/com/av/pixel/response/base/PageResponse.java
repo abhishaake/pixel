@@ -21,6 +21,9 @@ public class PageResponse{
     }
 
     private long calcTotalPages(long totalCount, long size) {
+        if (totalCount == 0) {
+            return 0;
+        }
         return 1 +  ( (totalCount-1) / size);
     }
 }

@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = UserMap.toUserDTO(signInRequest);
 
         assert Objects.nonNull(userDTO);
-        User user = userRepository.findByEmail(userDTO.getEmail());
+        User user = userRepository.findByEmailAndDeletedFalse(userDTO.getEmail());
 
         if (Objects.isNull(user)) {
             SignUpResponse signUpResponse = signUp(UserMap.toSignUpRequest(signInRequest));

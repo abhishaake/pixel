@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UserCreditDTO {
     String userCode;
-    Long available;
-    Long utilised;
+    Double available;
+    Double utilised;
 }

@@ -8,5 +8,11 @@ public interface UserCreditService {
 
     UserCredit createNewUserCredit(User user);
 
+    UserCredit createNewUserCredit(String userCode);
+
     UserCreditDTO getUserCredit(User user);
+
+    UserCreditDTO getUserCredit(String userCode);
+
+    UserCreditDTO updateUserCredit(String userCode, Double used);
 }

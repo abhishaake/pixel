@@ -33,7 +33,24 @@ public class UserCreditServiceImpl implements UserCreditService {
         userCredit = new UserCredit()
                 .setAvailable(userCreditHelper.getDefaultUserCredit())
                 .setUserCode(user.getCode())
-                .setUtilised(0L);
+                .setUtilised(0D);
+
+        return userCreditRepository.save(userCredit);
+    }
+
+    @Override
+    public UserCredit createNewUserCredit (String userCode) {
+
+        UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
+
+        if (Objects.nonNull(userCredit)) {
+            return userCredit;
+        }
+
+        userCredit = new UserCredit()
+                .setAvailable(userCreditHelper.getDefaultUserCredit())
+                .setUserCode(userCode)
+                .setUtilised(0D);
 
         return userCreditRepository.save(userCredit);
     }
@@ -43,5 +60,29 @@ public class UserCreditServiceImpl implements UserCreditService {
         UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(user.getCode()).orElse(null);
 
         return UserCreditMap.userCreditDTO(userCredit);
+    }
+
+    @Override
+    public UserCreditDTO getUserCredit (String userCode) {
+        UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
+
+        return UserCreditMap.userCreditDTO(userCredit);
+    }
+
+    @Override
+    public UserCreditDTO updateUserCredit(String userCode, Double used) {
+        UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
+
+        assert userCredit != null;
+        Double available = userCredit.getAvailable();
+        available -= used;
+        userCredit.setAvailable(available);
+
+        Double utilised = userCredit.getUtilised();
+        utilised += used;
+        userCredit.setUtilised(utilised);
+
+        return UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
+
     }
 }

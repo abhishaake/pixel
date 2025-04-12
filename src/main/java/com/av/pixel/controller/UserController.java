@@ -20,7 +20,7 @@ import static com.av.pixel.mapper.ResponseMapper.response;
 
 @RestController
 @Slf4j
-@RequestMapping("api/user")
+@RequestMapping("/api/v1/user")
 @AllArgsConstructor
 public class UserController {
 
