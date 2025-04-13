@@ -1,7 +1,6 @@
 package com.av.pixel.dao;
 
 import com.av.pixel.dao.base.BaseEntity;
-import com.av.pixel.dto.PromptImageDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -20,6 +19,11 @@ public class Generations extends BaseEntity {
     String tag;
     String category;
     String model;
-    String style;
     String userPrompt;
+    Long likes;
+    String renderOption;
+    Long seed;
+    String resolution;
+    Boolean privateImage;
+    String style;
 }

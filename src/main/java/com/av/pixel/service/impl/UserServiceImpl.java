@@ -23,8 +23,15 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -114,5 +121,17 @@ public class UserServiceImpl implements UserService {
         return new UserInfoResponse()
                 .setUser(userDTO)
                 .setUserCredit(userCreditDTO);
+    }
+
+    @Override
+    public Map<String, User> getUserCodeVsUserMap (List<String> userCodes) {
+        if (CollectionUtils.isEmpty(userCodes)) {
+            return new HashMap<>();
+        }
+        Set<String> userCodeSet = new HashSet<>(userCodes);
+
+        List<User> users = userRepository.findAllByCodeInAndDeletedFalse(userCodeSet.stream().toList());
+
+        return users.stream().collect(Collectors.toMap(User::getCode, u -> u));
     }
 }

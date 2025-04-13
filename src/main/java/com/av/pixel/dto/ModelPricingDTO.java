@@ -12,12 +12,6 @@ public class ModelPricingDTO {
     Double basePrice;
     Double basePriceMultiplier;
 
-    Double turboRenderPrice;
-    Double turboRenderPriceMultiplier;
-
-    Double qualityRenderPrice;
-    Double qualityRenderPriceMultiplier;
-
     Double privacyCost;
     Double privacyCostMultiplier;
 
@@ -32,14 +26,6 @@ public class ModelPricingDTO {
         return (int) (basePrice * basePriceMultiplier);
     }
 
-    public Integer getFinalTurboRenderCost() {
-        return (int) (turboRenderPrice * turboRenderPriceMultiplier);
-    }
-
-    public Integer getFinalQualityRenderCost() {
-        return (int) (qualityRenderPrice * qualityRenderPriceMultiplier);
-    }
-
     public Integer getFinalPrivacyCost() {
         return (int) (privacyCost * privacyCostMultiplier);
     }
@@ -52,14 +38,9 @@ public class ModelPricingDTO {
         return (int) (negativePromptCost * negativePromptCostMultiplier);
     }
 
-    public Integer getFinalCost (Integer noOfImages, String render, boolean isPrivate, boolean isSeed, boolean isNegativePrompt) {
+    public Integer getFinalCost (Integer noOfImages, boolean isPrivate, boolean isSeed, boolean isNegativePrompt) {
         Integer finalCost = noOfImages * getFinalBaseCost();
 
-        if ("QUALITY".equalsIgnoreCase(render)) {
-            finalCost += getFinalQualityRenderCost();
-        } else {
-            finalCost += getFinalTurboRenderCost();
-        }
         if (isPrivate) {
             finalCost += getFinalPrivacyCost();
         }

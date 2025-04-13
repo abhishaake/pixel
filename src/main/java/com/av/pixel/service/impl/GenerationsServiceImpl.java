@@ -1,13 +1,20 @@
 package com.av.pixel.service.impl;
 
+import com.av.pixel.cache.RLock;
 import com.av.pixel.cache.ModelPricingCache;
 import com.av.pixel.client.IdeogramClient;
 import com.av.pixel.dao.Generations;
 import com.av.pixel.dao.ModelConfig;
+import com.av.pixel.dao.User;
 import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.ModelPricingDTO;
 import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.dto.UserDTO;
+import com.av.pixel.enums.IdeogramModelEnum;
+import com.av.pixel.enums.ImageActionEnum;
+import com.av.pixel.enums.ImagePrivacyEnum;
+import com.av.pixel.enums.ImageRenderOptionEnum;
+import com.av.pixel.enums.PixelModelEnum;
 import com.av.pixel.exception.Error;
 import com.av.pixel.helper.GenerationHelper;
 import com.av.pixel.helper.Validator;
@@ -19,6 +26,7 @@ import com.av.pixel.repository.GenerationsRepository;
 import com.av.pixel.repository.ModelConfigRepository;
 import com.av.pixel.request.GenerateRequest;
 import com.av.pixel.request.GenerationsFilterRequest;
+import com.av.pixel.request.ImageActionRequest;
 import com.av.pixel.request.ImagePricingRequest;
 import com.av.pixel.request.ideogram.ImageRequest;
 import com.av.pixel.response.GenerationsFilterResponse;
@@ -26,7 +34,9 @@ import com.av.pixel.response.ImagePricingResponse;
 import com.av.pixel.response.ModelConfigResponse;
 import com.av.pixel.response.ideogram.ImageResponse;
 import com.av.pixel.service.GenerationsService;
+import com.av.pixel.service.LikeGenerationService;
 import com.av.pixel.service.UserCreditService;
+import com.av.pixel.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +52,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 
 @Service
 @Slf4j
@@ -58,6 +70,13 @@ public class GenerationsServiceImpl implements GenerationsService {
     IdeogramClient ideogramClient;
 
     GenerationHelper generationHelper;
+
+    LikeGenerationService likeGenerationService;
+
+    RLock locker;
+
+    UserService userService;
+
 
     @Override
     public GenerationsDTO generate (UserDTO userDTO, GenerateRequest generateRequest) {
@@ -76,7 +95,8 @@ public class GenerationsServiceImpl implements GenerationsService {
             throw new Error("Not enough credits");
         }
 
-        List<ImageResponse> imageResponses = generateImage(ImageMap.toImageRequest(generateRequest));
+        ImageRequest imageRequest = ImageMap.validateAndGetImageRequest(generateRequest);
+        List<ImageResponse> imageResponses = generateImage(imageRequest);
 
         if (Objects.isNull(imageResponses)) {
             throw new Error("some error occurred, please try again");
@@ -84,45 +104,52 @@ public class GenerationsServiceImpl implements GenerationsService {
 
         userCreditService.updateUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost));
 
-        GenerationsDTO generationsDTO = GenerationsMap.toGenerationsDTO(userDTO.getCode(), generateRequest.getModel(), generateRequest.getPrompt(), imageResponses);
+        Generations generations = generationHelper.saveUserGeneration(userDTO.getCode(), generateRequest, imageRequest, imageResponses, imageGenerationCost);
 
-        generationHelper.saveUserGeneration(generationsDTO, imageGenerationCost);
-
-        return generationsDTO;
+        return GenerationsMap.toGenerationsDTO(generations);
     }
 
     private List<ImageResponse> generateImage (ImageRequest imageRequest) {
         try {
             return ideogramClient.generateImages(imageRequest);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("[CRITICAL] generate Image error : {}, for req {} ", e.getMessage(), imageRequest, e);
             return null;
         }
     }
 
     @Override
-    public GenerationsFilterResponse filterImages (GenerationsFilterRequest generationsFilterRequest) {
+    public GenerationsFilterResponse filterImages (UserDTO userDTO, GenerationsFilterRequest generationsFilterRequest) {
 
         Validator.validateFilterImageRequest(generationsFilterRequest, "");
+
+        ImagePrivacyEnum privacyEnum = ImagePrivacyEnum.getEnumByName(generationsFilterRequest.getPrivacy());
 
         Page<Generations> generationsPage = findByFilters(generationsFilterRequest.getUserCodes(),
                 generationsFilterRequest.getCategories(),
                 generationsFilterRequest.getStyles(),
-                generationsFilterRequest.getPrivacy(),
+                privacyEnum.isPrivateImage(),
                 PageRequest.of(generationsFilterRequest.getPage(), generationsFilterRequest.getSize()));
 
         long totalCount = generationsPage.getTotalElements();
+        TreeSet<String> likedGenerations = null;
+        if (Objects.nonNull(userDTO) && StringUtils.isNotEmpty(userDTO.getCode())) {
+            List<String> genIds = generationsPage.getContent().stream().map(g -> g.getId().toString()).toList();
+            likedGenerations = likeGenerationService.getLikedGenerationsByUserCode(userDTO.getCode(), genIds);
+        }
+        List<String> userCodes = generationsPage.getContent().stream().map(Generations::getUserCode).toList();
+        Map<String, User> userMap = userService.getUserCodeVsUserMap(userCodes);
 
-        return new GenerationsFilterResponse(GenerationsMap.toList(generationsPage.getContent()),
+        return new GenerationsFilterResponse(GenerationsMap.toList(generationsPage.getContent(), likedGenerations, userMap),
                 totalCount, generationsFilterRequest.getPage(), generationsPage.getNumberOfElements());
     }
 
-    public Page<Generations> findByFilters(List<String> userCodes,
-                                           List<String> categories,
-                                           List<String> styles,
-                                           String privacy,
-                                           Pageable pageable) {
+
+    public Page<Generations> findByFilters (List<String> userCodes,
+                                            List<String> categories,
+                                            List<String> styles,
+                                            Boolean privacy,
+                                            Pageable pageable) {
 
         List<Criteria> criteriaList = new ArrayList<>();
 
@@ -138,8 +165,8 @@ public class GenerationsServiceImpl implements GenerationsService {
             criteriaList.add(Criteria.where("style").in(styles));
         }
 
-        if (privacy != null && !privacy.isBlank()) {
-            criteriaList.add(Criteria.where("privacy").is(privacy));
+        if (privacy != null) {
+            criteriaList.add(Criteria.where("privateImage").is(privacy));
         }
 
         Query query = new Query();
@@ -161,8 +188,8 @@ public class GenerationsServiceImpl implements GenerationsService {
         ImagePricingRequest imagePricingRequest = new ImagePricingRequest().setModel(generateRequest.getModel())
                 .setNoOfImages(generateRequest.getNumberOfImages())
                 .setSeed(generateRequest.getSeed())
-                .setPrivate(generateRequest.getPrivateImage())
-                .setHasNegativePrompt(StringUtils.isNotEmpty(generateRequest.getNegativePrompt()))
+                .setPrivateImage(generateRequest.getPrivateImage())
+                .setNegativePrompt(StringUtils.isNotEmpty(generateRequest.getNegativePrompt()))
                 .setRenderOption(generateRequest.getRenderOption());
 
         ImagePricingResponse imagePricingResponse = getPricing(imagePricingRequest);
@@ -174,8 +201,14 @@ public class GenerationsServiceImpl implements GenerationsService {
     public ImagePricingResponse getPricing (ImagePricingRequest imagePricingRequest) {
 
         Validator.validateModelPricingRequest(imagePricingRequest);
+        ImageRenderOptionEnum renderOptionEnum = ImageRenderOptionEnum.getEnumByName(imagePricingRequest.getRenderOption());
+        IdeogramModelEnum pixelModelEnum = PixelModelEnum.getIdeogramModelByNameAndRenderOption(imagePricingRequest.getModel(), renderOptionEnum);
 
-        String model = imagePricingRequest.getModel();
+        if (Objects.isNull(pixelModelEnum)) {
+            throw new Error("Please select valid model");
+        }
+
+        String model = pixelModelEnum.name();
 
         ModelPricingDTO modelPricingDTO = ModelPricingCache.getModelPricingMap().get(model);
 
@@ -185,8 +218,8 @@ public class GenerationsServiceImpl implements GenerationsService {
 
         boolean isSeed = Objects.nonNull(imagePricingRequest.getSeed());
 
-        Integer finalCost = modelPricingDTO.getFinalCost(imagePricingRequest.getNoOfImages(), imagePricingRequest.getRenderOption(),
-                imagePricingRequest.isPrivate(), isSeed, imagePricingRequest.isHasNegativePrompt());
+        Integer finalCost = modelPricingDTO.getFinalCost(imagePricingRequest.getNoOfImages(),
+                imagePricingRequest.isPrivateImage(), isSeed, imagePricingRequest.isNegativePrompt());
 
         return new ImagePricingResponse()
                 .setFinalCost(finalCost);
@@ -202,5 +235,29 @@ public class GenerationsServiceImpl implements GenerationsService {
 
         return new ModelConfigResponse()
                 .setModels(ModelConfigMap.toList(modelConfigs));
+    }
+
+    @Override
+    public String performAction (UserDTO userDTO, ImageActionRequest imageActionRequest) {
+        String key = "action_" + imageActionRequest.getGenerationId();
+        boolean locked = locker.tryLock(key, 1000);
+
+        if (!locked) {
+            return "success";
+        }
+        String res = "success";
+        try {
+            if (ImageActionEnum.LIKE.equals(imageActionRequest.getAction())) {
+                res = likeGenerationService.likeGeneration(userDTO.getCode(), imageActionRequest.getGenerationId());
+            } else if (ImageActionEnum.DISLIKE.equals(imageActionRequest.getAction())) {
+                res = likeGenerationService.disLikeGeneration(userDTO.getCode(), imageActionRequest.getGenerationId());
+            }
+            return "success";
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            locker.unlock(key);
+        }
+        return res;
     }
 }

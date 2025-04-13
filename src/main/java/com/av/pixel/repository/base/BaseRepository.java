@@ -7,10 +7,4 @@ import java.util.List;
 
 @NoRepositoryBean
 public interface BaseRepository<T, ID> extends MongoRepository<T, ID> {
-
-    List<T> findByDeletedFalse();
-
-    T findByIdAndDeletedFalse(ID id);
-
-    List<T> findByIdInAndDeletedFalse(List<ID> id);
 }

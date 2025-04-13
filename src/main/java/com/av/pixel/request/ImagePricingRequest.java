@@ -15,7 +15,7 @@ public class ImagePricingRequest {
 
     Long seed;
 
-    boolean isPrivate;
+    boolean privateImage;
 
-    boolean hasNegativePrompt;
+    boolean negativePrompt;
 }

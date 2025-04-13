@@ -9,10 +9,6 @@ public class PromptImage {
     int imageId;
     String url;
     String magicPrompt;
-    Long likes;
-    String style;
-    ImageMetaData metaData;
-    String resolution;
-    String privacy;
     boolean safeImage;
+    String style;
 }

@@ -8,6 +8,9 @@ import com.av.pixel.response.SignInResponse;
 import com.av.pixel.response.SignUpResponse;
 import com.av.pixel.response.UserInfoResponse;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
 
     User createUser(UserDTO userDTO);
@@ -19,4 +22,6 @@ public interface UserService {
     String logout(String accessToken);
 
     UserInfoResponse getUserInfo (String accessToken);
+
+    Map<String, User> getUserCodeVsUserMap (List<String> userCodes);
 }

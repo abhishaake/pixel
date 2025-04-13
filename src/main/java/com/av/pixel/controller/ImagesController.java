@@ -5,6 +5,7 @@ import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.request.GenerateRequest;
 import com.av.pixel.request.GenerationsFilterRequest;
+import com.av.pixel.request.ImageActionRequest;
 import com.av.pixel.request.ImagePricingRequest;
 import com.av.pixel.response.GenerationsFilterResponse;
 import com.av.pixel.response.ImagePricingResponse;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,8 +33,9 @@ public class ImagesController {
     GenerationsService imagesService;
 
     @PostMapping("/filter")
-    public ResponseEntity<Response<GenerationsFilterResponse>> filterImages(@RequestBody GenerationsFilterRequest imageFilterRequest) {
-        return response(imagesService.filterImages(imageFilterRequest), HttpStatus.OK);
+    @Authenticated
+    public ResponseEntity<Response<GenerationsFilterResponse>> filterImages(UserDTO userDTO, @RequestBody GenerationsFilterRequest imageFilterRequest) {
+        return response(imagesService.filterImages(userDTO, imageFilterRequest), HttpStatus.OK);
     }
 
     @GetMapping("/pricing")
@@ -48,4 +51,9 @@ public class ImagesController {
         return response(imagesService.generate(userDTO, generateRequest), HttpStatus.CREATED);
     }
 
+    @Authenticated
+    @PutMapping("/action")
+    public ResponseEntity<Response<String>> performAction (UserDTO userDTO, @RequestBody ImageActionRequest imageActionRequest) {
+        return response(imagesService.performAction(userDTO, imageActionRequest), HttpStatus.OK);
+    }
 }

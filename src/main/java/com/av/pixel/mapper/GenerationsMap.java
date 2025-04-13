@@ -3,6 +3,7 @@ package com.av.pixel.mapper;
 import com.av.pixel.dao.Generations;
 import com.av.pixel.dao.ImageMetaData;
 import com.av.pixel.dao.PromptImage;
+import com.av.pixel.dao.User;
 import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.PromptImageDTO;
 import com.av.pixel.response.ideogram.ImageResponse;
@@ -11,16 +12,31 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeSet;
 
 public class GenerationsMap {
 
-    public static List<GenerationsDTO> toList (List<Generations> generations){
+    public static List<GenerationsDTO> toList (List<Generations> generations, TreeSet<String> likedGenerations, Map<String, User> userMap){
         if (CollectionUtils.isEmpty(generations)) {
             return new ArrayList<>();
         }
         return generations.stream()
-                .map(GenerationsMap::toGenerationsDTO)
+                .map(g -> {
+                    GenerationsDTO genDTO = toGenerationsDTO(g);
+                    if (Objects.nonNull(genDTO)) {
+                        if (Objects.nonNull(likedGenerations) && likedGenerations.contains(g.getId().toString())){
+                            genDTO.setSelfLike(true);
+                        }
+                        if (Objects.nonNull(userMap) && userMap.containsKey(g.getUserCode())) {
+                            User user = userMap.get(g.getUserCode());
+                            genDTO.setUserName(user.getFirstName());
+                            genDTO.setUserImgUrl(user.getImageUrl());
+                        }
+                    }
+                    return genDTO;
+                })
                 .toList();
     }
 
@@ -28,13 +44,21 @@ public class GenerationsMap {
         if (Objects.isNull(generations)) {
             return null;
         }
+        Long likes = (Objects.isNull(generations.getLikes()) || generations.getLikes() < 0) ? 0L : generations.getLikes();
         return new GenerationsDTO()
+                .setGenerationId(generations.getId().toString())
                 .setImages(toPromptImageDTOList(generations.getImages()))
                 .setTag(generations.getTag())
                 .setCategory(generations.getCategory())
                 .setUserCode(generations.getUserCode())
                 .setModel(generations.getModel())
-                .setUserPrompt(generations.getUserPrompt());
+                .setUserPrompt(generations.getUserPrompt())
+                .setLikes(likes)
+                .setRenderOption(generations.getRenderOption())
+                .setSeed(generations.getSeed())
+                .setResolution(generations.getResolution())
+                .setPrivateImage(generations.getPrivateImage())
+                .setStyle(generations.getStyle());
     }
 
     public static List<PromptImageDTO> toPromptImageDTOList (List<PromptImage> promptImages){
@@ -53,103 +77,66 @@ public class GenerationsMap {
         return new PromptImageDTO()
                 .setImageId(promptImage.getImageId())
                 .setMagicPrompt(promptImage.getMagicPrompt())
-                .setLikes(promptImage.getLikes())
                 .setUrl(promptImage.getUrl())
-                .setStyle(promptImage.getStyle())
-                .setMetaData(promptImage.getMetaData())
-                .setResolution(promptImage.getResolution())
-                .setPrivacy(promptImage.getPrivacy())
-                .setSafeImage(promptImage.isSafeImage());
+                .setSafeImage(promptImage.isSafeImage())
+                .setStyle(promptImage.getStyle());
     }
 
-    public static PromptImageDTO toPromptImageDTO(ImageResponse imageResponse, int index) {
+    public static PromptImage toPromptImage(ImageResponse imageResponse, int index) {
         if (Objects.isNull(imageResponse)) {
             return null;
         }
-        return new PromptImageDTO()
+        return new PromptImage()
                 .setImageId(index)
                 .setMagicPrompt(imageResponse.getPrompt())
-                .setLikes(0L)
                 .setUrl(imageResponse.getUrl())
-                .setStyle(imageResponse.getStyleType())
-                .setMetaData(toImageMetaData(imageResponse))
-                .setResolution(imageResponse.getResolution())
-                .setPrivacy("PUBLIC")
-                .setSafeImage(imageResponse.getIsImageSafe());
+                .setSafeImage(imageResponse.getIsImageSafe())
+                .setStyle(imageResponse.getStyleType());
     }
 
-    public static List<PromptImageDTO> toPromptImageList(List<ImageResponse> imageResponse) {
+    public static List<PromptImage> toPromptImageList(List<ImageResponse> imageResponse) {
         if (CollectionUtils.isEmpty(imageResponse)) {
             return null;
         }
 
         int size = imageResponse.size();
 
-        List<PromptImageDTO> promptImageDTOS = new ArrayList<>();
+        List<PromptImage> promptImages = new ArrayList<>();
 
         for (int i=0;i<size;i++) {
-            promptImageDTOS.add(toPromptImageDTO(imageResponse.get(i), i+1));
+            promptImages.add(toPromptImage(imageResponse.get(i), i+1));
         }
 
-        return promptImageDTOS;
+        return promptImages;
     }
 
-    public static GenerationsDTO toGenerationsDTO(String userCode, String model, String prompt, List<ImageResponse> imageResponses){
-        if (CollectionUtils.isEmpty(imageResponses)) {
-            return null;
-        }
-        return new GenerationsDTO()
+    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, List<ImageResponse> imageResponses){
+        return new Generations()
                 .setImages(toPromptImageList(imageResponses))
                 .setTag(null)
                 .setCategory(null)
                 .setUserCode(userCode)
                 .setModel(model)
-                .setUserPrompt(prompt);
+                .setUserPrompt(prompt)
+                .setLikes(0L)
+                .setRenderOption(renderOption)
+                .setSeed(getSeed(imageResponses))
+                .setResolution(getResolution(imageResponses))
+                .setPrivateImage(privateImage);
     }
 
-    public static ImageMetaData toImageMetaData (ImageResponse imageResponse) {
-        if (Objects.isNull(imageResponse)) {
-            return null;
+    private static Long getSeed (List<ImageResponse> imageResponses) {
+        if (CollectionUtils.isEmpty(imageResponses) || Objects.isNull(imageResponses.get(0))) {
+            return 0L;
         }
-        return new ImageMetaData()
-                .setSeed(imageResponse.getSeed())
-                .setResolution(imageResponse.getResolution());
+        return imageResponses.get(0).getSeed();
     }
 
-    public static Generations toEntity (GenerationsDTO generationsDTO) {
-        if (Objects.isNull(generationsDTO)) {
+    private static String getResolution (List<ImageResponse> imageResponses) {
+        if (CollectionUtils.isEmpty(imageResponses) || Objects.isNull(imageResponses.get(0))) {
             return null;
         }
-        return new Generations()
-                .setCategory(generationsDTO.getCategory())
-                .setTag(generationsDTO.getTag())
-                .setUserPrompt(generationsDTO.getUserPrompt())
-                .setModel(generationsDTO.getModel())
-                .setUserCode(generationsDTO.getUserCode())
-                .setImages(toPromptImageEntityList(generationsDTO.getImages()));
+        return imageResponses.get(0).getResolution();
     }
 
-    public static List<PromptImage> toPromptImageEntityList (List<PromptImageDTO> images) {
-        if (CollectionUtils.isEmpty(images)) {
-            return null;
-        }
-        return images.stream()
-                .map(GenerationsMap::toPromptImage)
-                .toList();
-    }
-
-    public static PromptImage toPromptImage (PromptImageDTO promptImageDTO) {
-        if (Objects.isNull(promptImageDTO)) {
-            return null;
-        }
-        return new PromptImage()
-                .setImageId(promptImageDTO.getImageId())
-                .setUrl(promptImageDTO.getUrl())
-                .setLikes(promptImageDTO.getLikes())
-                .setStyle(promptImageDTO.getStyle())
-                .setResolution(promptImageDTO.getResolution())
-                .setPrivacy(promptImageDTO.getPrivacy())
-                .setMetaData(promptImageDTO.getMetaData())
-                .setSafeImage(promptImageDTO.isSafeImage());
-    }
 }

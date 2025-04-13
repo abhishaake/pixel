@@ -1,5 +1,10 @@
 package com.av.pixel.request.ideogram;
 
+import com.av.pixel.enums.AspectRatioEnum;
+import com.av.pixel.enums.IdeogramModelEnum;
+import com.av.pixel.enums.ImageStyleEnum;
+import com.av.pixel.enums.MagicPromptOptionEnum;
+import com.av.pixel.enums.ResolutionEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -13,17 +18,17 @@ public class ImageRequest {
     String prompt;
 
     @JsonProperty("aspect_ratio")
-    String aspectRatio;
+    AspectRatioEnum aspectRatio;
 
-    String model;
+    IdeogramModelEnum model;
 
     @JsonProperty("magic_prompt_option")
-    String magicPromptOption;
+    MagicPromptOptionEnum magicPromptOption;
 
     Long seed;
 
     @JsonProperty("style_type")
-    String styleType;
+    ImageStyleEnum styleType;
 
     @JsonProperty("negative_prompt")
     String negativePrompt;
@@ -31,5 +36,5 @@ public class ImageRequest {
     @JsonProperty("num_images")
     Integer numberOfImages;
 
-    String resolution;
+    ResolutionEnum resolution;
 }

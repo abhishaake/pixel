@@ -1,5 +1,7 @@
 package com.av.pixel.helper;
 
+import com.av.pixel.enums.AspectRatioEnum;
+import com.av.pixel.enums.PixelModelEnum;
 import com.av.pixel.exception.Error;
 import com.av.pixel.repository.UserRepository;
 import com.av.pixel.request.GenerateRequest;
@@ -46,7 +48,7 @@ public class Validator {
             filterRequest.setPage(0);
         }
         if (Objects.isNull(filterRequest.getSize())){
-            filterRequest.setSize(50);
+            filterRequest.setSize(10);
         }
     }
 
