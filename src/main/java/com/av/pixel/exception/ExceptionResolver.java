@@ -109,7 +109,7 @@ public class ExceptionResolver {
     public ResponseEntity<Response<Object>> handleError (Error e, WebRequest request) throws Exception{
         String token = getToken(request);
         log.error("token : {} , custom error : {}", token, e.getMessage());
-        return response(HttpStatus.BAD_REQUEST, e.getMessage());
+        return response(HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 public class UserCreditHelper {
 
     public Double getDefaultUserCredit() {
-        return 0D;
+        return 1000D;
     }
 }

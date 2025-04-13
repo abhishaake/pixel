@@ -110,7 +110,7 @@ public class GenerationsMap {
         return promptImages;
     }
 
-    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, List<ImageResponse> imageResponses){
+    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, String style, List<ImageResponse> imageResponses){
         return new Generations()
                 .setImages(toPromptImageList(imageResponses))
                 .setTag(null)
@@ -122,7 +122,8 @@ public class GenerationsMap {
                 .setRenderOption(renderOption)
                 .setSeed(getSeed(imageResponses))
                 .setResolution(getResolution(imageResponses))
-                .setPrivateImage(privateImage);
+                .setPrivateImage(privateImage)
+                .setStyle(style);
     }
 
     private static Long getSeed (List<ImageResponse> imageResponses) {

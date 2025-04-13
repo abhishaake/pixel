@@ -59,7 +59,7 @@ public class Validator {
     }
 
     private static void validateNoOfImageRange (Integer noOfImages, String error) {
-        if ((noOfImages < 1) || (noOfImages > 5)) {
+        if ((noOfImages < 1) || (noOfImages >= 5)) {
             throw new Error(error);
         }
     }
