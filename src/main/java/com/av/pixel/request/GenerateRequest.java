@@ -13,8 +13,9 @@ public class GenerateRequest {
     Long seed;
     String styleType;
     String negativePrompt;
-    Integer numberOfImages;
+    Integer noOfImages;
     String resolution;
     Boolean privateImage;
     String renderOption;
+    String colorPalette;
 }

@@ -17,5 +17,5 @@ public class ImagePricingRequest {
 
     boolean privateImage;
 
-    boolean negativePrompt;
+    String negativePrompt;
 }

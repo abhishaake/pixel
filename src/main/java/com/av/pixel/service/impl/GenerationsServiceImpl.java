@@ -96,13 +96,20 @@ public class GenerationsServiceImpl implements GenerationsService {
         }
 
         ImageRequest imageRequest = ImageMap.validateAndGetImageRequest(generateRequest);
+        try{
+            Thread.sleep(5000);
+        }
+        catch (Exception e){
+            log.error(e.getMessage(), e);
+        }
+
         List<ImageResponse> imageResponses = generateImage(imageRequest);
 
         if (Objects.isNull(imageResponses)) {
             throw new Error("some error occurred, please try again");
         }
 
-        userCreditService.updateUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost));
+        userCreditService.debitUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost), "IMAGE_GENERATION");
 
         Generations generations = generationHelper.saveUserGeneration(userDTO.getCode(), generateRequest, imageRequest, imageResponses, imageGenerationCost);
 
@@ -186,10 +193,10 @@ public class GenerationsServiceImpl implements GenerationsService {
 
     private Integer getCost (GenerateRequest generateRequest) {
         ImagePricingRequest imagePricingRequest = new ImagePricingRequest().setModel(generateRequest.getModel())
-                .setNoOfImages(generateRequest.getNumberOfImages())
+                .setNoOfImages(generateRequest.getNoOfImages())
                 .setSeed(generateRequest.getSeed())
                 .setPrivateImage(generateRequest.getPrivateImage())
-                .setNegativePrompt(StringUtils.isNotEmpty(generateRequest.getNegativePrompt()))
+                .setNegativePrompt(generateRequest.getNegativePrompt())
                 .setRenderOption(generateRequest.getRenderOption());
 
         ImagePricingResponse imagePricingResponse = getPricing(imagePricingRequest);
@@ -219,7 +226,7 @@ public class GenerationsServiceImpl implements GenerationsService {
         boolean isSeed = Objects.nonNull(imagePricingRequest.getSeed());
 
         Integer finalCost = modelPricingDTO.getFinalCost(imagePricingRequest.getNoOfImages(),
-                imagePricingRequest.isPrivateImage(), isSeed, imagePricingRequest.isNegativePrompt());
+                imagePricingRequest.isPrivateImage(), isSeed, StringUtils.isNotEmpty(imagePricingRequest.getNegativePrompt()));
 
         return new ImagePricingResponse()
                 .setFinalCost(finalCost);

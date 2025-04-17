@@ -3,6 +3,7 @@ package com.av.pixel.controller;
 import com.av.pixel.auth.Authenticated;
 import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.UserDTO;
+import com.av.pixel.enums.PermissionEnum;
 import com.av.pixel.request.GenerateRequest;
 import com.av.pixel.request.GenerationsFilterRequest;
 import com.av.pixel.request.ImageActionRequest;
@@ -33,7 +34,7 @@ public class ImagesController {
     GenerationsService imagesService;
 
     @PostMapping("/filter")
-    @Authenticated
+    @Authenticated(permissions = PermissionEnum.ANY)
     public ResponseEntity<Response<GenerationsFilterResponse>> filterImages(UserDTO userDTO, @RequestBody GenerationsFilterRequest imageFilterRequest) {
         return response(imagesService.filterImages(userDTO, imageFilterRequest), HttpStatus.OK);
     }

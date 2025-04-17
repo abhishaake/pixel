@@ -45,8 +45,10 @@ public class GenerationsMap {
             return null;
         }
         Long likes = (Objects.isNull(generations.getLikes()) || generations.getLikes() < 0) ? 0L : generations.getLikes();
+        Long creationEpoch = Objects.nonNull(generations.getCreated()) ? generations.getCreated().getTime() : null;
         return new GenerationsDTO()
                 .setGenerationId(generations.getId().toString())
+                .setCreationEpoch(creationEpoch)
                 .setImages(toPromptImageDTOList(generations.getImages()))
                 .setTag(generations.getTag())
                 .setCategory(generations.getCategory())
@@ -58,7 +60,8 @@ public class GenerationsMap {
                 .setSeed(generations.getSeed())
                 .setResolution(generations.getResolution())
                 .setPrivateImage(generations.getPrivateImage())
-                .setStyle(generations.getStyle());
+                .setStyle(generations.getStyle())
+                .setColorPalette(generations.getColorPalette());
     }
 
     public static List<PromptImageDTO> toPromptImageDTOList (List<PromptImage> promptImages){
@@ -110,7 +113,7 @@ public class GenerationsMap {
         return promptImages;
     }
 
-    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, String style, List<ImageResponse> imageResponses){
+    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, String style, String colorPalette, List<ImageResponse> imageResponses){
         return new Generations()
                 .setImages(toPromptImageList(imageResponses))
                 .setTag(null)
@@ -123,7 +126,8 @@ public class GenerationsMap {
                 .setSeed(getSeed(imageResponses))
                 .setResolution(getResolution(imageResponses))
                 .setPrivateImage(privateImage)
-                .setStyle(style);
+                .setStyle(style)
+                .setColorPalette(colorPalette);
     }
 
     private static Long getSeed (List<ImageResponse> imageResponses) {

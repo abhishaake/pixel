@@ -55,7 +55,8 @@ public class Validator {
     public static void validateGenerateRequest (GenerateRequest generateRequest) {
         validateNonNull(generateRequest, "Request cannot be empty");
         validateNonEmpty(generateRequest.getPrompt(), "Please provide valid prompt");
-        validateNonNull(generateRequest.getNumberOfImages(), "Please provide number of images between range 1 and 4");
+        validateNonNull(generateRequest.getNoOfImages(), "Please provide number of images between range 1 and 4");
+        validateNoOfImageRange(generateRequest.getNoOfImages(), "Please provide number of images between range 1 and 4");
     }
 
     private static void validateNoOfImageRange (Integer noOfImages, String error) {

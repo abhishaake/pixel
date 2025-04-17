@@ -37,4 +37,7 @@ public class ImageRequest {
     Integer numberOfImages;
 
     ResolutionEnum resolution;
+
+    @JsonProperty("color_palette")
+    ColorPalette colorPalette;
 }

@@ -6,6 +6,7 @@ import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.helper.UserCreditHelper;
 import com.av.pixel.mapper.UserCreditMap;
 import com.av.pixel.repository.UserCreditRepository;
+import com.av.pixel.service.TransactionService;
 import com.av.pixel.service.UserCreditService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,8 @@ public class UserCreditServiceImpl implements UserCreditService {
 
     UserCreditRepository userCreditRepository;
     UserCreditHelper userCreditHelper;
+
+    TransactionService transactionService;
 
     @Override
     public UserCredit createNewUserCredit (User user) {
@@ -70,7 +73,7 @@ public class UserCreditServiceImpl implements UserCreditService {
     }
 
     @Override
-    public UserCreditDTO updateUserCredit(String userCode, Double used) {
+    public UserCreditDTO debitUserCredit (String userCode, Double used, String orderType) {
         UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
 
         assert userCredit != null;
@@ -82,7 +85,10 @@ public class UserCreditServiceImpl implements UserCreditService {
         utilised += used;
         userCredit.setUtilised(utilised);
 
-        return UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
+        UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
 
+        transactionService.saveTransaction(userCode, used, "DEBIT", "SERVER", "", orderType);
+
+        return userCreditDTO;
     }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class GenerationsDTO {
     String generationId;
+    Long creationEpoch;
     String userCode;
     String userName;
     String userImgUrl;
@@ -28,4 +29,5 @@ public class GenerationsDTO {
     Boolean privateImage;
     String style;
     boolean selfLike;
+    String colorPalette;
 }

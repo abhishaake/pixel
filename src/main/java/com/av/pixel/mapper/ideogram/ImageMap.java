@@ -9,6 +9,7 @@ import com.av.pixel.enums.PixelModelEnum;
 import com.av.pixel.enums.ResolutionEnum;
 import com.av.pixel.exception.Error;
 import com.av.pixel.request.GenerateRequest;
+import com.av.pixel.request.ideogram.ColorPalette;
 import com.av.pixel.request.ideogram.ImageRequest;
 
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class ImageMap {
         ImageStyleEnum imageStyle = ImageStyleEnum.getEnumByName(generateRequest.getStyleType());
 
         return new ImageRequest()
-                .setNumberOfImages(generateRequest.getNumberOfImages())
+                .setNumberOfImages(generateRequest.getNoOfImages())
                 .setAspectRatio(aspectRatio)
                 .setModel(model)
                 .setMagicPromptOption(magicPromptOption)
@@ -37,7 +38,8 @@ public class ImageMap {
                 .setSeed(generateRequest.getSeed())
                 .setNegativePrompt(generateRequest.getNegativePrompt())
                 .setResolution(resolution)
-                .setStyleType(imageStyle);
+                .setStyleType(imageStyle)
+                .setColorPalette(new ColorPalette().setName(generateRequest.getColorPalette()));
     }
 
 }

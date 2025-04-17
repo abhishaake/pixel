@@ -26,4 +26,5 @@ public class Generations extends BaseEntity {
     String resolution;
     Boolean privateImage;
     String style;
+    String colorPalette;
 }
