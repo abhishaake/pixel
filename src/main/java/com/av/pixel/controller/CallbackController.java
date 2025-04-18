@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @Slf4j
-@RequestMapping("/callback")
+@RequestMapping("/api/v1/callback")
 public class CallbackController {
 
     CallbackService callbackService;

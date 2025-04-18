@@ -1,5 +1,6 @@
 package com.av.pixel.service;
 
+import com.av.pixel.helper.TransformUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -63,17 +64,18 @@ public class CallbackService {
             Map<String, String[]> parameters,
             String requestBody
     ) {
+        StringBuilder stringBuilder = new StringBuilder();
+
         // Log Headers
         headers.forEach((key, value) ->
-                log.info("Header - " + key + ": {}", value)
+                stringBuilder.append("Header - ").append(key).append(": ").append(value).append("\n")
         );
-
+        stringBuilder.append("\n");
         // Log Parameters
         parameters.forEach((key, values) ->
-                log.info("Param - " + key + ": " + String.join(", ", values))
+                stringBuilder.append("Param - ").append(key).append(": ").append(String.join(", ", values)).append("\n")
         );
 
-        // Log Request Body
-        log.info("Request Body: {}" ,requestBody);
+        log.info(stringBuilder.toString() + " \n " + "Request Body: {}", requestBody);
     }
 }
