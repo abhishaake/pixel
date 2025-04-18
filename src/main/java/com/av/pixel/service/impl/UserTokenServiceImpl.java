@@ -40,6 +40,12 @@ public class UserTokenServiceImpl implements UserTokenService {
     }
 
     @Override
+    public UserTokenDTO getUserToken (String userCode) {
+        UserToken userToken = userTokenRepository.findByUserCodeAndExpiredFalseAndDeletedFalse(userCode);
+        return UserTokenMap.toTokenDTO(userToken);
+    }
+
+    @Override
     public UserTokenDTO registerToken (String userCode) {
         UserToken userToken = new UserToken();
         userToken.setAccessToken(UserTokenHelper.generateToken());
@@ -67,6 +73,7 @@ public class UserTokenServiceImpl implements UserTokenService {
         if (StringUtils.isEmpty(accessToken)) {
             return null;
         }
+        // TODO : CACHE
 
         UserToken userToken = userTokenRepository.findByAccessTokenAndExpiredFalseAndDeletedFalse(accessToken);
 

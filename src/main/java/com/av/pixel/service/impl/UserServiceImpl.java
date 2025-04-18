@@ -2,6 +2,7 @@ package com.av.pixel.service.impl;
 
 import com.av.pixel.dao.User;
 import com.av.pixel.dao.UserCredit;
+import com.av.pixel.dao.UserToken;
 import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
@@ -100,8 +101,10 @@ public class UserServiceImpl implements UserService {
 
         UserCreditDTO userCreditDTO = userCreditService.getUserCredit(user);
 
-        UserTokenDTO userTokenDTO = userTokenService.registerToken(user.getCode(), signInRequest.getAuthToken());
-        // TODO : cache
+        UserTokenDTO userTokenDTO = userTokenService.getUserToken(user.getCode());
+        if (Objects.isNull(userTokenDTO)) {
+            userTokenDTO = userTokenService.registerToken(user.getCode(), signInRequest.getAuthToken());
+        }
 
         return UserMap.toResponse(userDTO, userCreditDTO, userTokenDTO);
     }

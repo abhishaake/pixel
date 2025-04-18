@@ -8,6 +8,8 @@ public interface UserTokenService {
 
     UserTokenDTO registerToken(String userCode, String authToken);
 
+    UserTokenDTO getUserToken(String userCode);
+
     UserTokenDTO registerToken(String userCode);
 
     void expireToken(String accessToken);

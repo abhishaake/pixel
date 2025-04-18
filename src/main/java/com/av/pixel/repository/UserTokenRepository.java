@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserTokenRepository extends BaseRepository<UserToken, String> {
     UserToken findByAccessTokenAndExpiredFalseAndDeletedFalse(String accessToken);
+
+    UserToken findByUserCodeAndExpiredFalseAndDeletedFalse(String userCode);
 }
