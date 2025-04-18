@@ -16,7 +16,6 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -35,7 +34,8 @@ public class GenerationHelper {
 
     public Generations saveUserGeneration (String userCode, GenerateRequest generateRequest, ImageRequest imageRequest, List<ImageResponse> imageResponses, Integer imageGenerationCost) {
         Generations generations = GenerationsMap.toGenerationsEntity(userCode, generateRequest.getModel(), generateRequest.getPrompt(),
-                generateRequest.getRenderOption(), generateRequest.getPrivateImage(), generateRequest.getStyleType(), generateRequest.getColorPalette(), imageResponses);
+                generateRequest.getRenderOption(), generateRequest.getPrivateImage(), generateRequest.getStyleType(), generateRequest.getColorPalette(),
+                imageRequest.getAspectRatio(), imageResponses);
 
         if (Objects.isNull(imageRequest.getStyleType())) {
             generations.setStyle(ImageStyleEnum.AUTO.name());

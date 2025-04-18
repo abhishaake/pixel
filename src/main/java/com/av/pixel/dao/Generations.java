@@ -27,4 +27,5 @@ public class Generations extends BaseEntity {
     Boolean privateImage;
     String style;
     String colorPalette;
+    String aspectRatio;
 }

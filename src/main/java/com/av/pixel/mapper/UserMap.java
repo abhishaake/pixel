@@ -4,11 +4,13 @@ import com.av.pixel.dao.User;
 import com.av.pixel.dto.UserCreditDTO;
 import com.av.pixel.dto.UserDTO;
 import com.av.pixel.dto.UserTokenDTO;
+import com.av.pixel.helper.DateUtil;
 import com.av.pixel.request.SignInRequest;
 import com.av.pixel.request.SignUpRequest;
 import com.av.pixel.response.SignInResponse;
 import com.av.pixel.response.SignUpResponse;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class UserMap {
@@ -25,7 +27,15 @@ public class UserMap {
                 .setPhone(user.getPhone())
                 .setEmail(user.getEmail())
                 .setCode(user.getCode())
-                .setImageUrl(user.getImageUrl());
+                .setImageUrl(user.getImageUrl())
+                .setOnboardingDate(getOnboardingDate(user.getCreated()));
+    }
+
+    private static String getOnboardingDate(Date date) {
+        if (Objects.isNull(date)) {
+            return "Joined a while ago";
+        }
+        return "Joined " + DateUtil.formatDate2(date);
     }
 
     public static User toUserEntity (UserDTO userDTO) {

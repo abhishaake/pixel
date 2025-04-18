@@ -6,6 +6,8 @@ import com.av.pixel.dao.PromptImage;
 import com.av.pixel.dao.User;
 import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.PromptImageDTO;
+import com.av.pixel.enums.AspectRatioEnum;
+import com.av.pixel.helper.DateUtil;
 import com.av.pixel.response.ideogram.ImageResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.CollectionUtils;
@@ -45,7 +47,7 @@ public class GenerationsMap {
             return null;
         }
         Long likes = (Objects.isNull(generations.getLikes()) || generations.getLikes() < 0) ? 0L : generations.getLikes();
-        Long creationEpoch = Objects.nonNull(generations.getCreated()) ? generations.getCreated().getTime() : null;
+        String creationEpoch = Objects.nonNull(generations.getCreated()) ? DateUtil.formatDate(generations.getCreated()) : "- -";
         return new GenerationsDTO()
                 .setGenerationId(generations.getId().toString())
                 .setCreationEpoch(creationEpoch)
@@ -61,7 +63,8 @@ public class GenerationsMap {
                 .setResolution(generations.getResolution())
                 .setPrivateImage(generations.getPrivateImage())
                 .setStyle(generations.getStyle())
-                .setColorPalette(generations.getColorPalette());
+                .setColorPalette(generations.getColorPalette())
+                .setAspectRatio(generations.getAspectRatio());
     }
 
     public static List<PromptImageDTO> toPromptImageDTOList (List<PromptImage> promptImages){
@@ -113,7 +116,8 @@ public class GenerationsMap {
         return promptImages;
     }
 
-    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage, String style, String colorPalette, List<ImageResponse> imageResponses){
+    public static Generations toGenerationsEntity(String userCode, String model, String prompt, String renderOption, Boolean privateImage,
+                                                  String style, String colorPalette, AspectRatioEnum aspectRatio, List<ImageResponse> imageResponses){
         return new Generations()
                 .setImages(toPromptImageList(imageResponses))
                 .setTag(null)
@@ -127,7 +131,8 @@ public class GenerationsMap {
                 .setResolution(getResolution(imageResponses))
                 .setPrivateImage(privateImage)
                 .setStyle(style)
-                .setColorPalette(colorPalette);
+                .setColorPalette(colorPalette)
+                .setAspectRatio(Objects.isNull(aspectRatio) ? "1:1" : aspectRatio.name());
     }
 
     private static Long getSeed (List<ImageResponse> imageResponses) {

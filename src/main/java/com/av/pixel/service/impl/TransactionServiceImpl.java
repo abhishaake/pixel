@@ -3,11 +3,13 @@ package com.av.pixel.service.impl;
 import com.av.pixel.dao.Transactions;
 import com.av.pixel.repository.TransactionRepository;
 import com.av.pixel.service.TransactionService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
     TransactionRepository transactionRepository;

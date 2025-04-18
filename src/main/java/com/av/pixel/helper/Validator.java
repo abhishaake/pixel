@@ -1,6 +1,7 @@
 package com.av.pixel.helper;
 
 import com.av.pixel.enums.AspectRatioEnum;
+import com.av.pixel.enums.ColorPaletteEnum;
 import com.av.pixel.enums.PixelModelEnum;
 import com.av.pixel.exception.Error;
 import com.av.pixel.repository.UserRepository;
@@ -57,7 +58,17 @@ public class Validator {
         validateNonEmpty(generateRequest.getPrompt(), "Please provide valid prompt");
         validateNonNull(generateRequest.getNoOfImages(), "Please provide number of images between range 1 and 4");
         validateNoOfImageRange(generateRequest.getNoOfImages(), "Please provide number of images between range 1 and 4");
+        validateImageColorPalette(generateRequest);
     }
+
+    private static void validateImageColorPalette(GenerateRequest generateRequest) {
+        if (StringUtils.isEmpty(generateRequest.getColorPalette())) {
+            return;
+        }
+        ColorPaletteEnum colorPaletteEnum = ColorPaletteEnum.getEnumByName(generateRequest.getColorPalette());
+        generateRequest.setColorPalette(colorPaletteEnum.name());
+    }
+
 
     private static void validateNoOfImageRange (Integer noOfImages, String error) {
         if ((noOfImages < 1) || (noOfImages >= 5)) {

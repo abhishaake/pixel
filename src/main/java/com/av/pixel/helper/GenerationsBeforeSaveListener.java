@@ -5,6 +5,8 @@ import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventLis
 import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class GenerationsBeforeSaveListener extends AbstractMongoEventListener<Generations> {
 
@@ -15,6 +17,10 @@ public class GenerationsBeforeSaveListener extends AbstractMongoEventListener<Ge
         if (document.getLikes() == null) {
             document.setLikes(0L);
         }
+        if (document.getCreated() == null) {
+            document.setCreated(new Date());
+        }
+        document.setUpdated(new Date());
         super.onBeforeSave(event);
     }
 }
