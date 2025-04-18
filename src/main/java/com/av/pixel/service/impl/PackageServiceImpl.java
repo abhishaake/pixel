@@ -60,6 +60,7 @@ public class PackageServiceImpl implements PackageService {
                 throw new Error("Invalid package");
             }
         }
+        userCreditService.creditUserCredits(userCode, packageInfo.getCredits(), "PAYMENTS_CREDIT", null, packageInfo.getPackageId(), "GOOGLE_PAYMENTS");
     }
 
     private void auditFailedTxn (String userCode, String packageId) {
