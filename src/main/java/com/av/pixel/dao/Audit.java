@@ -18,4 +18,6 @@ public class Audit extends BaseEntity {
     String packageId;
     String credits;
     String refId;
+    String timestamp;
+    String adTxnId;
 }

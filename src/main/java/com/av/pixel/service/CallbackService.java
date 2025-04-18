@@ -14,16 +14,18 @@ import java.util.Map;
 @Slf4j
 public class CallbackService {
 
+    PackageService packageService;
+
     public void handleAdCallback(HttpServletRequest request) {
         log.info("inside handleAdCallback");
         try {
-            Map<String, String> headers = captureHeaders(request);
-
             Map<String, String[]> parameters = captureParameters(request);
+            String userCode = String.join(",", parameters.get("user_id"));
+            String packageId = String.join(",", parameters.get("custom_data"));
+            String transactionId = String.join(",", parameters.get("transaction_id"));
+            String timestamp = String.join(",", parameters.get("timestamp"));
 
-            String requestBody = captureRequestBody(request);
-
-            logRequestDetails(headers, parameters, requestBody);
+            packageService.handleAdPayment(userCode, packageId, transactionId, timestamp);
 
         } catch (Exception e) {
             log.error("handleAdCallback error: {}", e.getMessage(), e);

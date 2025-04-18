@@ -25,7 +25,7 @@ public class PackageServiceImpl implements PackageService {
     AuditRepository auditRepository;
 
     @Override
-    public void handleAdPayment (String userCode, String adIdentifier) {
+    public void handleAdPayment (String userCode, String adIdentifier, String adTxnId, String timestamp) {
         if (StringUtils.isEmpty(userCode)) {
             throw new Error("user code empty");
         }
@@ -36,7 +36,7 @@ public class PackageServiceImpl implements PackageService {
         if (Objects.isNull(packageInfo)) {
             packageInfo = packageRepository.getByPackageIdAndDeletedFalse("PIXEL_AD_DEFAULT");
             if (Objects.isNull(packageInfo)) {
-                auditFailedTxn(userCode, adIdentifier);
+                auditFailedTxn(userCode, adIdentifier, adTxnId, timestamp);
                 throw new Error("Invalid package");
             }
         }
@@ -56,17 +56,19 @@ public class PackageServiceImpl implements PackageService {
         if (Objects.isNull(packageInfo)) {
             packageInfo = packageRepository.getByPackageIdAndDeletedFalse("PIXEL_GOOGLE_PAYMENT_DEFAULT");
             if (Objects.isNull(packageInfo)) {
-                auditFailedTxn(userCode, packageId);
+                auditFailedTxn(userCode, packageId, null, null);
                 throw new Error("Invalid package");
             }
         }
         userCreditService.creditUserCredits(userCode, packageInfo.getCredits(), "PAYMENTS_CREDIT", null, packageInfo.getPackageId(), "GOOGLE_PAYMENTS");
     }
 
-    private void auditFailedTxn (String userCode, String packageId) {
+    private void auditFailedTxn (String userCode, String packageId, String adTxnId, String timestamp) {
         Audit audit = new Audit();
         audit.setUserCode(userCode);
         audit.setPackageId(packageId);
+        audit.setAdTxnId(adTxnId);
+        audit.setTimestamp(timestamp);
         auditRepository.save(audit);
     }
 }
