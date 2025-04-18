@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.util.Date;
 
 @Data
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @Id
     private ObjectId id;

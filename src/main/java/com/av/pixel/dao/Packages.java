@@ -1,6 +1,5 @@
 package com.av.pixel.dao;
 
-
 import com.av.pixel.dao.base.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,14 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
-@Document("transactions")
-public class Transactions extends BaseEntity {
-    String userCode;
-    Double amountInRs;
-    Double credits;
-    String txnType;
-    String source;
-    String refId;
-    String orderType;
+@Document(collection = "packages")
+public class Packages extends BaseEntity {
     String packageId;
+    Double amount;
+    Double credits;
 }

@@ -82,38 +82,48 @@ public class GenerationsServiceImpl implements GenerationsService {
     public GenerationsDTO generate (UserDTO userDTO, GenerateRequest generateRequest) {
         Validator.validateGenerateRequest(generateRequest);
 
-        UserCreditDTO userCreditDTO = userCreditService.getUserCredit(userDTO.getCode());
+        String key = "generation_" + userDTO.getCode();
+        boolean locked = locker.tryLock(key, 10);
 
-        if (Objects.isNull(userCreditDTO)) {
-            userCreditDTO = UserCreditMap.userCreditDTO(userCreditService.createNewUserCredit(userDTO.getCode()));
+        if (!locked) {
+            throw new Error("1 Generation already in progress, Please wait..");
         }
 
-        Double availableCredits = userCreditDTO.getAvailable();
-        Integer imageGenerationCost = getCost(generateRequest);
+        try {
+            UserCreditDTO userCreditDTO = userCreditService.getUserCredit(userDTO.getCode());
 
-        if (availableCredits < imageGenerationCost) {
-            throw new Error("Not enough credits");
+            if (Objects.isNull(userCreditDTO)) {
+                userCreditDTO = UserCreditMap.userCreditDTO(userCreditService.createNewUserCredit(userDTO.getCode()));
+            }
+
+            Double availableCredits = userCreditDTO.getAvailable();
+            Integer imageGenerationCost = getCost(generateRequest);
+
+            if (availableCredits < imageGenerationCost) {
+                throw new Error("Not enough credits");
+            }
+
+            ImageRequest imageRequest = ImageMap.validateAndGetImageRequest(generateRequest);
+
+            List<ImageResponse> imageResponses = generateImage(imageRequest);
+
+            if (Objects.isNull(imageResponses)) {
+                throw new Error("some error occurred, please try again");
+            }
+
+            userCreditService.debitUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost), "IMAGE_GENERATION", "SERVER");
+
+            Generations generations = generationHelper.saveUserGeneration(userDTO.getCode(), generateRequest, imageRequest, imageResponses, imageGenerationCost);
+
+            GenerationsDTO res = GenerationsMap.toGenerationsDTO(generations);
+            locker.unlock(key);
+            return res;
         }
-
-        ImageRequest imageRequest = ImageMap.validateAndGetImageRequest(generateRequest);
-        try{
-            Thread.sleep(5000);
+        catch (Exception e) {
+            Thread.currentThread().interrupt();
+            locker.unlock(key);
+            throw e;
         }
-        catch (Exception e){
-            log.error(e.getMessage(), e);
-        }
-
-        List<ImageResponse> imageResponses = generateImage(imageRequest);
-
-        if (Objects.isNull(imageResponses)) {
-            throw new Error("some error occurred, please try again");
-        }
-
-        userCreditService.debitUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost), "IMAGE_GENERATION");
-
-        Generations generations = generationHelper.saveUserGeneration(userDTO.getCode(), generateRequest, imageRequest, imageResponses, imageGenerationCost);
-
-        return GenerationsMap.toGenerationsDTO(generations);
     }
 
     private List<ImageResponse> generateImage (ImageRequest imageRequest) {

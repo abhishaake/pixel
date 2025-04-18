@@ -49,6 +49,12 @@ public class IdeogramClient extends IdeogramBaseClient{
     private static final Random RANDOM = new Random();
 
     public List<ImageResponse> generateImages(ImageRequest imageRequest) {
+        try{
+            Thread.sleep(5000);
+        }
+        catch (Exception e){
+            log.error(e.getMessage(), e);
+        }
         List<ImageResponse> res = new ArrayList<>();
 
         for(int i=0;i<imageRequest.getNumberOfImages();i++) {

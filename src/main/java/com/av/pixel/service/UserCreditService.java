@@ -14,5 +14,7 @@ public interface UserCreditService {
 
     UserCreditDTO getUserCredit(String userCode);
 
-    UserCreditDTO debitUserCredit (String userCode, Double used, String orderType);
+    UserCreditDTO debitUserCredit (String userCode, Double used, String orderType, String source);
+
+    UserCreditDTO creditUserCredits (String userCode, Double credits, String orderType, String refId, String packageId, String source);
 }

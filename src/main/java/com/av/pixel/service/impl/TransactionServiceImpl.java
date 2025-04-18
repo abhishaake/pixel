@@ -15,14 +15,17 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionRepository transactionRepository;
 
     @Override
-    public Transactions saveTransaction(String userCode, Double amount, String txnType, String source, String refId, String orderType) {
+    public Transactions saveTransaction(String userCode, Double amountInRs, Double credits, String txnType, String source,
+                                        String refId, String orderType, String packageId) {
         Transactions transactions = new Transactions()
                 .setUserCode(userCode)
-                .setAmount(amount)
+                .setAmountInRs(amountInRs)
+                .setCredits(credits)
                 .setTxnType(txnType)
                 .setSource(source)
                 .setRefId(refId)
-                .setOrderType(orderType);
+                .setOrderType(orderType)
+                .setPackageId(packageId);
 
         return transactionRepository.save(transactions);
     }

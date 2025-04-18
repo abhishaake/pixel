@@ -5,6 +5,7 @@ import com.av.pixel.dto.ModelPricingDTO;
 import com.av.pixel.service.ModelPricingService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -17,8 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CacheScheduler {
 
     ModelPricingService modelPricingService;
+    AdminConfigRepository adminConfigRepository;
 
-//    @Scheduled(cron = "0 0/30 * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     public void loadModelPricing() {
         List<ModelPricingDTO> modelPricingDTOS = modelPricingService.getAllModelPricingList();
 

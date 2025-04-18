@@ -73,7 +73,7 @@ public class UserCreditServiceImpl implements UserCreditService {
     }
 
     @Override
-    public UserCreditDTO debitUserCredit (String userCode, Double used, String orderType) {
+    public UserCreditDTO debitUserCredit (String userCode, Double used, String orderType, String source) {
         UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
 
         assert userCredit != null;
@@ -87,7 +87,23 @@ public class UserCreditServiceImpl implements UserCreditService {
 
         UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
 
-        transactionService.saveTransaction(userCode, used, "DEBIT", "SERVER", "", orderType);
+        transactionService.saveTransaction(userCode, null, used, "DEBIT", source, null, orderType , null);
+
+        return userCreditDTO;
+    }
+
+    @Override
+    public UserCreditDTO creditUserCredits (String userCode, Double credits, String orderType, String refId, String packageId, String source) {
+        UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
+
+        assert userCredit != null;
+        Double available = userCredit.getAvailable();
+        available += credits;
+        userCredit.setAvailable(available);
+
+        UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
+
+        transactionService.saveTransaction(userCode, null, credits, "CREDIT", source, refId, orderType , packageId);
 
         return userCreditDTO;
     }
