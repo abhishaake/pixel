@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CacheScheduler {
 
     ModelPricingService modelPricingService;
-    AdminConfigRepository adminConfigRepository;
 
     @Scheduled(cron = "0 0 * * * ?")
     public void loadModelPricing() {
