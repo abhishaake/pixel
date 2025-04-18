@@ -80,6 +80,7 @@ public class GenerationsServiceImpl implements GenerationsService {
 
     @Override
     public GenerationsDTO generate (UserDTO userDTO, GenerateRequest generateRequest) {
+        log.info("generate img req {} from {}", generateRequest.getPrompt(), userDTO.getCode());
         Validator.validateGenerateRequest(generateRequest);
 
         String key = "generation_" + userDTO.getCode();

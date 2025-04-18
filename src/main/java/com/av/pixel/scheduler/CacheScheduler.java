@@ -21,6 +21,7 @@ public class CacheScheduler {
 
     @Scheduled(cron = "0 0 * * * ?")
     public void loadModelPricing() {
+        log.info("loadModelPricing scheduler started");
         List<ModelPricingDTO> modelPricingDTOS = modelPricingService.getAllModelPricingList();
 
         if (CollectionUtils.isEmpty(modelPricingDTOS)) {
