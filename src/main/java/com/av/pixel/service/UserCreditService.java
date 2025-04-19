@@ -1,8 +1,10 @@
 package com.av.pixel.service;
 
+import com.av.pixel.dao.Transactions;
 import com.av.pixel.dao.User;
 import com.av.pixel.dao.UserCredit;
 import com.av.pixel.dto.UserCreditDTO;
+import com.av.pixel.enums.OrderTypeEnum;
 
 public interface UserCreditService {
 
@@ -14,7 +16,9 @@ public interface UserCreditService {
 
     UserCreditDTO getUserCredit(String userCode);
 
-    UserCreditDTO debitUserCredit (String userCode, Double used, String orderType, String source);
+    UserCreditDTO debitUserCredit (String userCode, Double used, OrderTypeEnum orderType, String source, String orderId);
 
-    UserCreditDTO creditUserCredits (String userCode, Double credits, String orderType, String refId, String packageId, String source);
+    UserCreditDTO creditUserCredits (String userCode, Double credits);
+
+    UserCreditDTO creditUserCredits (String userCode, Double credits, Transactions transaction);
 }

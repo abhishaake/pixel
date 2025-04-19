@@ -1,6 +1,5 @@
 package com.av.pixel.service;
 
-import com.av.pixel.helper.TransformUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,7 @@ import java.util.Map;
 @Slf4j
 public class CallbackService {
 
-    PackageService packageService;
+    MonetizationService monetizationService;
 
     public void handleAdCallback(HttpServletRequest request) {
         log.info("inside handleAdCallback");
@@ -25,7 +24,7 @@ public class CallbackService {
             String transactionId = String.join(",", parameters.get("transaction_id"));
             String timestamp = String.join(",", parameters.get("timestamp"));
 
-            packageService.handleAdPayment(userCode, packageId, transactionId, timestamp);
+            monetizationService.handleAdPayment(userCode, packageId, transactionId, timestamp);
 
         } catch (Exception e) {
             log.error("handleAdCallback error: {}", e.getMessage(), e);

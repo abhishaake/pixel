@@ -1,8 +1,11 @@
 package com.av.pixel.service.impl;
 
+import com.av.pixel.dao.Transactions;
 import com.av.pixel.dao.User;
 import com.av.pixel.dao.UserCredit;
 import com.av.pixel.dto.UserCreditDTO;
+import com.av.pixel.enums.OrderStatusEnum;
+import com.av.pixel.enums.OrderTypeEnum;
 import com.av.pixel.helper.UserCreditHelper;
 import com.av.pixel.mapper.UserCreditMap;
 import com.av.pixel.repository.UserCreditRepository;
@@ -73,38 +76,50 @@ public class UserCreditServiceImpl implements UserCreditService {
     }
 
     @Override
-    public UserCreditDTO debitUserCredit (String userCode, Double used, String orderType, String source) {
+    public UserCreditDTO debitUserCredit (String userCode, Double used, OrderTypeEnum orderType, String source, String orderId) {
         UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
 
         assert userCredit != null;
         Double available = userCredit.getAvailable();
-        available -= used;
-        userCredit.setAvailable(available);
+        userCredit.setAvailable(available - used);
 
         Double utilised = userCredit.getUtilised();
-        utilised += used;
-        userCredit.setUtilised(utilised);
+        userCredit.setUtilised(utilised + used);
 
         UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
 
-        transactionService.saveTransaction(userCode, null, used, "DEBIT", source, null, orderType , null);
+        transactionService.saveTransaction(userCode, available, used, userCredit.getAvailable(), orderType,
+                orderId, null, OrderStatusEnum.SUCCESS, null, source, null);
 
         return userCreditDTO;
     }
 
     @Override
-    public UserCreditDTO creditUserCredits (String userCode, Double credits, String orderType, String refId, String packageId, String source) {
+    public UserCreditDTO creditUserCredits (String userCode, Double credits) {
         UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
 
         assert userCredit != null;
         Double available = userCredit.getAvailable();
-        available += credits;
-        userCredit.setAvailable(available);
+        userCredit.setAvailable(available + credits);
 
-        UserCreditDTO userCreditDTO = UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
+        return UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
+    }
 
-        transactionService.saveTransaction(userCode, null, credits, "CREDIT", source, refId, orderType , packageId);
+    @Override
+    public UserCreditDTO creditUserCredits (String userCode, Double credits, Transactions transaction) {
+        UserCredit userCredit = userCreditRepository.findByUserCodeAndDeletedFalse(userCode).orElse(null);
 
-        return userCreditDTO;
+        assert userCredit != null;
+        Double available = userCredit.getAvailable();
+        userCredit.setAvailable(available + credits);
+
+        transaction.setCreditsBefore(available)
+                .setCreditsAfter(userCredit.getAvailable())
+                .setCreditsInvolved(credits)
+                .setStatus(OrderStatusEnum.SUCCESS);
+
+        transactionService.saveTransaction(transaction);
+
+        return UserCreditMap.userCreditDTO(userCreditRepository.save(userCredit));
     }
 }

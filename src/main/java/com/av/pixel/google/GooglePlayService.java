@@ -1,0 +1,14 @@
+package com.av.pixel.google;
+
+import com.google.api.services.androidpublisher.model.ProductPurchase;
+
+import java.io.IOException;
+
+public interface GooglePlayService {
+
+    ProductPurchase verifyProductPurchase(String productId, String purchaseToken) throws IOException;
+
+    void acknowledgePurchase(String productId, String purchaseToken, String developerPayload) throws IOException;
+
+    void consumePurchase(String productId, String purchaseToken) throws IOException;
+}

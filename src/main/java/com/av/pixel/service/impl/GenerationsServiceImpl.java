@@ -5,6 +5,7 @@ import com.av.pixel.cache.ModelPricingCache;
 import com.av.pixel.client.IdeogramClient;
 import com.av.pixel.dao.Generations;
 import com.av.pixel.dao.ModelConfig;
+import com.av.pixel.dao.Transactions;
 import com.av.pixel.dao.User;
 import com.av.pixel.dto.GenerationsDTO;
 import com.av.pixel.dto.ModelPricingDTO;
@@ -14,6 +15,8 @@ import com.av.pixel.enums.IdeogramModelEnum;
 import com.av.pixel.enums.ImageActionEnum;
 import com.av.pixel.enums.ImagePrivacyEnum;
 import com.av.pixel.enums.ImageRenderOptionEnum;
+import com.av.pixel.enums.OrderStatusEnum;
+import com.av.pixel.enums.OrderTypeEnum;
 import com.av.pixel.enums.PixelModelEnum;
 import com.av.pixel.exception.Error;
 import com.av.pixel.helper.GenerationHelper;
@@ -35,6 +38,7 @@ import com.av.pixel.response.ModelConfigResponse;
 import com.av.pixel.response.ideogram.ImageResponse;
 import com.av.pixel.service.GenerationsService;
 import com.av.pixel.service.LikeGenerationService;
+import com.av.pixel.service.TransactionService;
 import com.av.pixel.service.UserCreditService;
 import com.av.pixel.service.UserService;
 import lombok.AllArgsConstructor;
@@ -77,7 +81,6 @@ public class GenerationsServiceImpl implements GenerationsService {
 
     UserService userService;
 
-
     @Override
     public GenerationsDTO generate (UserDTO userDTO, GenerateRequest generateRequest) {
         log.info("generate img req {} from {}", generateRequest.getPrompt(), userDTO.getCode());
@@ -112,11 +115,11 @@ public class GenerationsServiceImpl implements GenerationsService {
                 throw new Error("some error occurred, please try again");
             }
 
-            userCreditService.debitUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost), "IMAGE_GENERATION", "SERVER");
-
             Generations generations = generationHelper.saveUserGeneration(userDTO.getCode(), generateRequest, imageRequest, imageResponses, imageGenerationCost);
+            userCreditService.debitUserCredit(userDTO.getCode(), Double.valueOf(imageGenerationCost), OrderTypeEnum.IMAGE_GENERATION, "SERVER", generations.getId().toString());
 
             GenerationsDTO res = GenerationsMap.toGenerationsDTO(generations);
+
             locker.unlock(key);
             return res;
         }
@@ -126,6 +129,7 @@ public class GenerationsServiceImpl implements GenerationsService {
             throw e;
         }
     }
+
 
     private List<ImageResponse> generateImage (ImageRequest imageRequest) {
         try {
